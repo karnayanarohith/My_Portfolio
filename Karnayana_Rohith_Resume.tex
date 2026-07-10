@@ -1,15 +1,15 @@
 %-------------------------
 % Resume in Latex
-% Author : Karnayana Rohith
-% License : MIT
+% Based on Jake's Resume Template
+% Modified: dark blue section headings, light blue sub-headings,
+% real embedded Font Awesome icons (requires XeLaTeX or LuaLaTeX)
 %------------------------
 
-\documentclass[letterpaper,10.5pt]{article}
+\documentclass[letterpaper,10pt]{article}
 
 \usepackage{latexsym}
 \usepackage[empty]{fullpage}
 \usepackage{titlesec}
-\usepackage{marvosym}
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{verbatim}
 \usepackage{enumitem}
@@ -17,196 +17,212 @@
 \usepackage{fancyhdr}
 \usepackage[english]{babel}
 \usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{fontspec}
 \usepackage{geometry}
 
+% ---- Margin and Layout Config ----
 \geometry{
   letterpaper,
-  left=0.5in,
-  right=0.5in,
-  top=0.45in,
-  bottom=0.45in
+  left=0.4in,
+  right=0.4in,
+  top=0.4in,
+  bottom=0.4in
 }
 
 \pagestyle{fancy}
-\fancyhf{} % clear all header and footer fields
+\fancyhf{}
 \fancyfoot{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
-% Use standard margins
 \urlstyle{same}
 
 \raggedbottom
 \raggedright
 \setlength{\tabcolsep}{0in}
+\setlist{topsep=0pt, itemsep=2pt, parsep=0pt}
+
+% ---- Real Font Awesome icons (needs XeLaTeX or LuaLaTeX to compile) ----
+% Font files ship alongside this .tex file in a "fonts" subfolder.
+\newfontfamily\FABrands{fa-brands-400.ttf}[Path = ./fonts/]
+\newfontfamily\FASolid{fa-solid-900.ttf}[Path = ./fonts/]
+
+\newcommand{\faPhone}{{\FASolid\symbol{"F095}}}
+\newcommand{\faEnvelope}{{\FASolid\symbol{"F0E0}}}
+\newcommand{\faGlobe}{{\FASolid\symbol{"F0AC}}}
+\newcommand{\faGithub}{{\FABrands\symbol{"F09B}}}
+\newcommand{\faLinkedin}{{\FABrands\symbol{"F08C}}}
+
+% Colors: dark blue for section headings, light blue for sub-headings
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{lightblue}{RGB}{70,130,180}
 
 % Sections formatting
 \titleformat{\section}{
-  \vspace{-10pt}\scshape\raggedright\large\bfseries
-}{}{0em}{}[\color{black}\rule{\textwidth}{0.5pt}\vspace{-6pt}]
+  \vspace{-8pt}\scshape\raggedright\large\bfseries\color{darkblue}
+}{}{0em}{}[\color{darkblue}\titlerule \vspace{-4pt}]
+
+\titlespacing{\section}{0pt}{4pt}{2pt}
 
 %-------------------------
 % Custom commands
-\newcommand{\resumeItem}[1]{
-  \item\small{
-    {#1 \vspace{-2.5pt}}
-  }
-}
+\newcommand{\resumeItem}[1]{\item\small{#1}}
 
 \newcommand{\resumeSubheading}[4]{
-  \vspace{-2pt}\item
-    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
-      \textbf{#1} & #2 \\
+  \item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{\color{darkblue}#1} & \textbf{\small #2} \\
       \textit{\small#3} & \textit{\small #4} \\
-    \end{tabular*}\vspace{-6pt}
+    \end{tabular*}\vspace{-4pt}
 }
 
 \newcommand{\resumeProjectHeading}[2]{
     \item
-    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-      \small#1 & #2 \\
-    \end{tabular*}\vspace{-6pt}
+    \begin{tabular*}{1.0\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-4pt}
 }
 
-\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}}
 
 \renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
 
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-\newcommand{\resumeItemListStart}{\begin{itemize}}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.15in]}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-4pt}}
 
 %-------------------------------------------
-%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%############
-
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%
 
 \begin{document}
 
 %----------HEADING----------
 \begin{center}
-    \textbf{\Huge \scshape Karnayana Rohith} \\ \vspace{4pt}
+    \textbf{\huge \scshape Karnayana Rohith} \\ \vspace{2pt}
     \small Visakhapatnam, Andhra Pradesh, India \\ \vspace{2pt}
-    \small +91 97011 28085 $|$ \href{mailto:karnayanarohith@gmail.com}{\underline{karnayanarohith@gmail.com}} $|$ 
-    \href{https://linkedin.com/in/rohith-karnayana}{\underline{linkedin.com/in/rohith-karnayana}} $|$ 
-    \href{https://github.com/karnayanarohith}{\underline{github.com/karnayanarohith}} $|$ 
-    \href{https://rohithkarnayana.vercel.app}{\underline{rohithkarnayana.vercel.app}}
+    \small
+    \faPhone\ +91 97011 28085 \ $|$ \
+    \faEnvelope\ \href{mailto:karnayanarohith@gmail.com}{karnayanarohith@gmail.com} \ $|$ \
+    \faLinkedin\ \href{https://linkedin.com/in/rohith-karnayana}{linkedin.com/in/rohith-karnayana} \ $|$ \
+    \faGithub\ \href{https://github.com/karnayanarohith}{github.com/karnayanarohith} \ $|$ \
+    \faGlobe\ \href{https://rohithkarnayana.vercel.app}{rohithkarnayana.vercel.app}
 \end{center}
-
 
 %-----------PROFILE-----------
 \section{Profile}
-\small{
-Final-year B.Tech ECE student specializing in low-level systems security and agentic AI. Experienced in firmware exploitation, kernel debugging, and orchestrating multi-agent LLM systems. Targeting SOC L1 / Cybersecurity Analyst roles to apply hands-on skills in threat mitigation, log analysis, and secure system design.
-}
-
+\small{Final-year B.Tech ECE student specializing in low-level systems security and agentic AI. Experienced in firmware exploitation, kernel debugging, and orchestrating multi-agent LLM systems. Targeting SOC L1 / Cybersecurity Analyst roles to apply hands-on skills in threat mitigation, log analysis, and secure system design.}
 
 %-----------EDUCATION-----------
 \section{Education}
-  \resumeSubHeadingListStart
+\resumeSubHeadingListStart
     \resumeSubheading
       {Andhra University College of Engineering}{Visakhapatnam, Andhra Pradesh}
-      {Bachelor of Technology (B.Tech) in Electronics \& Communication Engineering $|$ CGPA: 8.4/10}{2023 -- 2027}
+      {Bachelor of Technology (B.Tech) in Electronics \& Communication Engineering | CGPA: 8.4/10}{2023 -- 2027}
     \resumeSubheading
       {Sri Gayathri Junior College}{Gotlam, Vizianagaram, Andhra Pradesh}
-      {Intermediate (MPC) $|$ Percentage: 95\%}{2021 -- 2023}
+      {Intermediate (MPC) | Percentage: 95\%}{2021 -- 2023}
     \resumeSubheading
       {ZPHS Siripuram}{Siripuram, Srikakulam, Andhra Pradesh}
-      {Secondary School Certificate (SSC) $|$ Percentage: 85\%}{2021}
-  \resumeSubHeadingListEnd
-
+      {Secondary School Certificate (SSC) | Percentage: 85\%}{2021}
+\resumeSubHeadingListEnd
 
 %-----------TECHNICAL SKILLS-----------
 \section{Technical Skills}
  \begin{itemize}[leftmargin=0.15in, label={}]
-    \small{\item{
-     \textbf{Languages}{: C, Python, Bash, Assembly, JavaScript, SQL (PostgreSQL)} \\
-     \textbf{Cybersecurity}{: CVE Research \& Exploitation, Log Analysis \& Forensics, MITRE ATT\&CK, Threat Triage \& Incident Response, IAM} \\
-     \textbf{AI / ML}{: LangGraph (Agentic AI), Ollama (Local LLMs), Vector DBs (ChromaDB), FastAPI, PyTorch, OpenCV} \\
-     \textbf{Systems \& OS}{: Embedded Linux, Android Bootloader Internals, process/memory debugging, filesystem structures} \\
-     \textbf{Tools \& Utilities}{: Git, Docker, Linux CLI, GDB, ADB, Fastboot, Wireshark, Splunk, Wazuh}
-    }}
+    \small{
+     \item \textbf{\color{darkblue}Languages}{: C, Python, Bash, Assembly, JavaScript, SQL (PostgreSQL)}
+     \item \textbf{\color{darkblue}Cybersecurity}{: CVE Research \& Exploitation, Log Analysis \& Forensics, MITRE ATT\&CK, Threat Triage \& Incident Response, IAM}
+     \item \textbf{\color{darkblue}AI / ML}{: LangGraph (Agentic AI), Ollama (Local LLMs), Vector DBs (ChromaDB), FastAPI, PyTorch, OpenCV}
+     \item \textbf{\color{darkblue}Systems \& OS}{: Embedded Linux, Android Bootloader Internals, process/memory debugging, filesystem structures}
+     \item \textbf{\color{darkblue}Tools \& Utilities}{: Git, Docker, Linux CLI, GDB, ADB, Fastboot, Wireshark, Splunk, Wazuh}
+    }
  \end{itemize}
-
 
 %-----------PROJECTS-----------
 \section{Projects}
     \resumeSubHeadingListStart
+
       \resumeProjectHeading
-          {\textbf{Aegis} $|$ \emph{Python, LangGraph, Ollama, ChromaDB, Docker}}{}
+          {\textbf{\color{darkblue}Aegis} $|$ \emph{Python, LangGraph, Ollama, ChromaDB, Docker} \ \faGithub\ \href{https://github.com/karnayanarohith/Aegis}{\underline{karnayanarohith/Aegis}} \ \textit{(in active development)}}{}
           \resumeItemListStart
-            \resumeItem{Developed an autonomous, dual-mode Blue/Red Team security agent orchestrated with LangGraph and local LLMs via Ollama.}
-            \resumeItem{Engineered a RAG-based memory pipeline using ChromaDB to store and recall threat intelligence, vulnerability logs, and attack patterns.}
-            \resumeItem{Built and containerized modular tools for automated network reconnaissance, log analysis, and incident triage mapped to the MITRE ATT\&CK framework.}
+            \resumeItem{Engineering an autonomous, dual-mode Blue/Red Team security agent orchestrated with LangGraph and local LLMs via Ollama.}
+            \resumeItem{Building a RAG-based memory pipeline using ChromaDB to store and recall threat intelligence, vulnerability logs, and attack patterns.}
+            \resumeItem{Containerizing modular tools for automated network reconnaissance, log analysis, and incident triage mapped to the MITRE ATT\&CK framework.}
           \resumeItemListEnd
-          
+
       \resumeProjectHeading
-          {\textbf{EXT4 Forensic Recovery Tool} $|$ \emph{C, Linux, Systems Programming}}{}
+          {\textbf{\color{darkblue}EXT4 Forensic Recovery Tool} $|$ \emph{C, Linux, Systems Programming} \ \faGithub\ \href{https://github.com/karnayanarohith/Aegis_File_Recovery_Tool}{\underline{karnayanarohith/Aegis\_File\_Recovery\_Tool}}}{}
           \resumeItemListStart
-            \resumeItem{Developed a low-level forensic recovery tool in C that parses raw EXT4 disk partitions directly without mounting the filesystem.}
+            \resumeItem{Developed a low-level forensic recovery tool in C that parses raw EXT4 disk partitions directly without mounting the filesystem, recovering 13+ file types (including .pth, .h5, .pdf, and image formats) with 100\% recovery accuracy in testing.}
             \resumeItem{Programmed manual superblock, inode table, and directory entry parsers to locate and reconstruct unlinked data block chains.}
             \resumeItem{Designed an ncurses-based TUI with a read-only preview engine to ensure forensically sound, non-destructive file recovery operations.}
           \resumeItemListEnd
-    \resumeSubHeadingListEnd
 
+    \resumeSubHeadingListEnd
 
 %-----------EXPERIENCE-----------
 \section{Experience}
-  \resumeSubHeadingListStart
+    \resumeSubHeadingListStart
 
-    \resumeSubheading
-      {Android Security \& Systems Research}{May 2026 -- July 2026}
-      {Self-Directed Research, Realme C15 (MT6765)}{}
-      \resumeItemListStart
-        \resumeItem{\textbf{CVE \& Vulnerability Profiling:} Conducted MediaTek BROM exploit research to bypass Download Agent authentication using MTKClient and dump the device's seccfg partition. Mapped vulnerability attack surfaces on EOL firmware, profiling CVE-2022-20421 (Binder UAF) and CVE-2024-20106 (Type Confusion) via GDB and dmesg.}
-        \resumeItem{\textbf{Custom ROM \& Recovery Deployment:} Executed bootloader unlocking via BROM RAM patching and resolved Android dynamic partition allocation errors during custom recovery flashing. Deployed LineageOS and set up a Kali NetHunter chroot environment to convert the device into a mobile penetration testing platform.}
-      \resumeItemListEnd
+      \resumeSubheading
+        {Android Security \& Systems Research}{May 2026 -- July 2026}
+        {Self-Directed Research, Realme C15 (MT6765)}{}
+        \resumeItemListStart
+          \resumeItem{\textbf{CVE \& Vulnerability Profiling:} Conducted MediaTek BROM exploit research to bypass Download Agent authentication using MTKClient and dump the device's seccfg partition. Mapped vulnerability attack surfaces on EOL firmware, profiling CVE-2022-20421 (Binder UAF) and CVE-2024-20106 (Type Confusion) via GDB and dmesg.}
+          \resumeItem{\textbf{Custom ROM \& Recovery Deployment:} Executed bootloader unlocking via BROM RAM patching and resolved Android dynamic partition allocation errors during custom recovery flashing. Deployed LineageOS and set up a Kali NetHunter chroot environment to convert the device into a mobile penetration testing platform.}
+        \resumeItemListEnd
 
-    \resumeSubheading
-      {Network Operations Lead}{March 2026}
-      {ELEXCENTRA Hackathon, Andhra University College of Engineering}{}
-      \resumeItemListStart
-        \resumeItem{Engineered and managed the network infrastructure for a live, 5-hour hackathon supporting 400+ concurrent devices across 6 rooms.}
-        \resumeItem{Configured and deployed Wi-Fi and physical LAN cabling using TP-Link switches along with D-Link and Netgear routers.}
-        \resumeItem{Diagnosed and resolved real-time network congestion, signal degradation, and routing conflicts under pressure to ensure zero downtime.}
-      \resumeItemListEnd
+      \resumeSubheading
+        {Network Operations Lead}{March 2026}
+        {ELEXCENTRA Hackathon, Andhra University College of Engineering}{}
+        \resumeItemListStart
+          \resumeItem{Engineered and managed the network infrastructure for a live, 5-hour hackathon supporting 400+ concurrent devices across 6 rooms.}
+          \resumeItem{Configured and deployed Wi-Fi and physical LAN cabling using TP-Link switches along with D-Link and Netgear routers.}
+          \resumeItem{Diagnosed and resolved real-time network congestion, signal degradation, and routing conflicts under pressure to ensure zero downtime.}
+        \resumeItemListEnd
 
-    \resumeSubheading
-      {Machine Learning Research Assistant}{2025}
-      {NEXUS Research Project, Andhra University (under Dr. Karri Chiranjeevi)}{}
-      \resumeItemListStart
-        \resumeItem{Engineered a real-time small object detection pipeline for industrial seals and tags utilizing PyTorch, CUDA, and the MMDetection framework.}
-        \resumeItem{Benchmarked advanced CNN and Vision Transformer architectures including TOOD, Deformable DETR, and DINO.}
-        \resumeItem{Achieved ~98\% accuracy on large objects and improved small-object mAP from 0.0 to 0.28 via resolution scaling and custom data balancing.}
-      \resumeItemListEnd
+      \resumeSubheading
+        {Machine Learning Research Assistant}{2025}
+        {NEXUS Research Project, Andhra University (under Dr. Karri Chiranjeevi)}{}
+        \resumeItemListStart
+          \resumeItem{Engineered a real-time small object detection pipeline for industrial seals and tags utilizing PyTorch, CUDA, and the MMDetection framework.}
+          \resumeItem{Benchmarked advanced CNN and Vision Transformer architectures including TOOD, Deformable DETR, and DINO.}
+          \resumeItem{Achieved 98\% accuracy on large objects and improved small-object mAP from 0.0 to 0.28 via resolution scaling and custom data balancing.}
+        \resumeItemListEnd
 
-  \resumeSubHeadingListEnd
+    \resumeSubHeadingListEnd
 
-
-%-----------ACHIEVEMENTS & HONORS-----------
+%-----------ACHIEVEMENTS-----------
 \section{Achievements \& Honors}
-  \resumeItemListStart
-    \resumeItem{\textbf{1st Place Champion}, HackAP (2025): Co-engineered 'Foundra' (\href{https://github.com/karnayanarohith/Foundra}{\underline{github.com/karnayanarohith/Foundra}}), an AI startup advisor orchestrating 11 autonomous LLM agents across 6 business development phases.}
-    \resumeItem{\textbf{Security Solver} (picoCTF, TryHackMe, OverTheWire): Actively practicing hands-on exploitation and offensive security. Solving 'THE GAUNTLET' (\href{https://github.com/karnayanarohith/THE-GAUNTLET}{\underline{github.com/karnayanarohith/THE-GAUNTLET}}) --- a 21-challenge security lab with public write-ups.}
-    \resumeItem{\textbf{Project Finalist}, Smart India Hackathon \& AURORA 2.0 (2024): Developed computer vision models to analyze satellite imagery for illegal mining detection.}
-  \resumeItemListEnd
+    \begin{itemize}[leftmargin=0.15in, label={}]
+      \small{
+        \item \textbf{\color{darkblue}1st Place Champion, HackAP (2025)}: Co-engineered 'Foundra' (\faGithub\ \href{https://github.com/karnayanarohith/Foundra}{\underline{github.com/karnayanarohith/Foundra}}), an AI startup advisor orchestrating 11 autonomous LLM agents across 6 business development phases.
+        \vspace{2pt}
+        \item \textbf{\color{darkblue}Security Solver} (picoCTF, TryHackMe, OverTheWire): 20+ rooms completed, Bronze league (Top 5\%). Actively practicing hands-on exploitation and offensive security. Solving 'THE GAUNTLET' (\faGithub\ \href{https://github.com/karnayanarohith/THE-GAUNTLET}{\underline{github.com/karnayanarohith/THE-GAUNTLET}}) --- a 21-challenge security lab with public write-ups.
+        \vspace{2pt}
+        \item \textbf{\color{darkblue}Project Finalist, Smart India Hackathon \& AURORA 2.0 (2024)}: Developed computer vision models to analyze satellite imagery for illegal mining detection.
+      }
+    \end{itemize}
 
-
-%-----------CERTIFICATIONS & CREDENTIALS-----------
+%-----------CERTIFICATIONS-----------
 \section{Certifications \& Credentials}
-  \resumeItemListStart
-    \resumeItem{Centri Security --- Blue Team Junior Analyst (BTJA)}
-    \resumeItem{Anthropic --- Model Context Protocol (MCP) Developer}
-    \resumeItem{Kaggle --- Machine Learning Certification}
-    \resumeItem{Cisco --- Completed specialized credentials in Application Vulnerability Exploitation, Post-Exploitation Techniques, and Wireless Security}
-    \resumeItem{Deloitte --- Cybersecurity Job Simulation (Log Analysis \& Incident Response)}
-    \resumeItem{Tata Group --- Identity \& Access Management (IAM) Simulation}
-  \resumeItemListEnd
+    \begin{itemize}[leftmargin=0.15in, label={}]
+      \small{
+        \item \textbf{\color{darkblue}Centri Security} --- Blue Team Junior Analyst (BTJA)
+        \item \textbf{\color{darkblue}Anthropic} --- Model Context Protocol (MCP) Developer
+        \item \textbf{\color{darkblue}Kaggle} --- Machine Learning Certification
+        \item \textbf{\color{darkblue}Cisco} --- Ethical Hacker path (18+ credentials), including: Application Vulnerability Exploitation; Post-Exploitation Techniques; Wireless Security
+        \item \textbf{\color{darkblue}Deloitte} --- Cybersecurity Job Simulation (Log Analysis \& Incident Response)
+        \item \textbf{\color{darkblue}Tata Group} --- Identity \& Access Management (IAM) Simulation
+      }
+    \end{itemize}
 
 %-----------LANGUAGES-----------
 \section{Languages}
-  \resumeItemListStart
-    \resumeItem{English (Professional), Telugu (Native)}
-  \resumeItemListEnd
+\begin{itemize}[leftmargin=0.15in, label={}]
+  \small{\item English (Professional), Telugu (Native)}
+\end{itemize}
 
 \end{document}
