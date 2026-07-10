@@ -2,7 +2,7 @@
 % Resume in Latex
 % Based on Jake's Resume Template
 % Modified: dark blue section headings, light blue sub-headings,
-% real embedded Font Awesome icons (requires XeLaTeX or LuaLaTeX)
+% uses native fontawesome5 package (works out-of-the-box on Overleaf)
 %------------------------
 
 \documentclass[letterpaper,10pt]{article}
@@ -18,16 +18,16 @@
 \usepackage[english]{babel}
 \usepackage{tabularx}
 \usepackage{xcolor}
-\usepackage{fontspec}
+\usepackage{fontawesome5} % Loaded natively from Overleaf (no local font files needed)
 \usepackage{geometry}
 
 % ---- Margin and Layout Config ----
 \geometry{
   letterpaper,
-  left=0.4in,
-  right=0.4in,
-  top=0.4in,
-  bottom=0.4in
+  left=0.45in,
+  right=0.45in,
+  top=0.45in,
+  bottom=0.45in
 }
 
 \pagestyle{fancy}
@@ -41,18 +41,9 @@
 \raggedbottom
 \raggedright
 \setlength{\tabcolsep}{0in}
-\setlist{topsep=0pt, itemsep=2pt, parsep=0pt}
 
-% ---- Real Font Awesome icons (needs XeLaTeX or LuaLaTeX to compile) ----
-% Font files ship alongside this .tex file in a "fonts" subfolder.
-\newfontfamily\FABrands{fa-brands-400.ttf}[Path = ./fonts/]
-\newfontfamily\FASolid{fa-solid-900.ttf}[Path = ./fonts/]
-
-\newcommand{\faPhone}{{\FASolid\symbol{"F095}}}
-\newcommand{\faEnvelope}{{\FASolid\symbol{"F0E0}}}
-\newcommand{\faGlobe}{{\FASolid\symbol{"F0AC}}}
-\newcommand{\faGithub}{{\FABrands\symbol{"F09B}}}
-\newcommand{\faLinkedin}{{\FABrands\symbol{"F08C}}}
+% Adjust list spacing globally - safe positive spacing to prevent overlap
+\setlist{topsep=1pt, itemsep=3pt, parsep=0pt}
 
 % Colors: dark blue for section headings, light blue for sub-headings
 \definecolor{darkblue}{RGB}{0,51,102}
@@ -60,10 +51,10 @@
 
 % Sections formatting
 \titleformat{\section}{
-  \vspace{-8pt}\scshape\raggedright\large\bfseries\color{darkblue}
-}{}{0em}{}[\color{darkblue}\titlerule \vspace{-4pt}]
+  \vspace{-6pt}\scshape\raggedright\large\bfseries\color{darkblue}
+}{}{0em}{}[\color{darkblue}\titlerule \vspace{-3pt}]
 
-\titlespacing{\section}{0pt}{4pt}{2pt}
+\titlespacing{\section}{0pt}{6pt}{4pt}
 
 %-------------------------
 % Custom commands
@@ -91,7 +82,7 @@
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
 \newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.15in]}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-4pt}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-2pt}}
 
 %-------------------------------------------
 %%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%
@@ -100,8 +91,8 @@
 
 %----------HEADING----------
 \begin{center}
-    \textbf{\huge \scshape Karnayana Rohith} \\ \vspace{2pt}
-    \small Visakhapatnam, Andhra Pradesh, India \\ \vspace{2pt}
+    \textbf{\huge \scshape Karnayana Rohith} \\ \vspace{4pt}
+    \small Visakhapatnam, Andhra Pradesh, India \\ \vspace{3pt}
     \small
     \faPhone\ +91 97011 28085 \ $|$ \
     \faEnvelope\ \href{mailto:karnayanarohith@gmail.com}{karnayanarohith@gmail.com} \ $|$ \
@@ -112,7 +103,7 @@
 
 %-----------PROFILE-----------
 \section{Profile}
-\small{Final-year B.Tech ECE student specializing in low-level systems security and agentic AI. Experienced in firmware exploitation, kernel debugging, and orchestrating multi-agent LLM systems. Targeting SOC L1 / Cybersecurity Analyst roles to apply hands-on skills in threat mitigation, log analysis, and secure system design.}
+\small{Final-year B.Tech ECE student with a deep passion for understanding how systems work at their lowest level — how they break, and how to secure them. Drawn to cybersecurity not as a checklist of tools, but as a discipline of engineering resilience: patient, methodical, and precise. Equally comfortable analyzing kernel state logs, implementing threat mitigations, and building AI orchestration pipelines. Driven by a desire to study attack surfaces, secure system design, and the intersection of AI with offensive and defensive operations. Believes the best defense comes from truly understanding what you are protecting — down to the binary.}
 
 %-----------EDUCATION-----------
 \section{Education}
