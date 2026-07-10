@@ -63,8 +63,6 @@ function ExperiencePage() {
         cards={[
           { kicker: "Sub", to: "/experience/certifications", title: "Certifications", desc: "Verified credentials across cybersecurity, AI, and networking.", cta: "See certs" },
           { kicker: "Sub", to: "/experience/awards", title: "Achievements", desc: "Hackathon wins, leadership roles, and competition results.", cta: "See wins" },
-          { kicker: "Sub", to: "/experience/testimonials", title: "Testimonials", desc: "Words from the people I've shipped with.", cta: "Read praise" },
-          { kicker: "Sub", to: "/experience/services", title: "Services", desc: "What I offer to freelance clients and collaborators.", cta: "See services" },
         ]}
       />
     </SiteLayout>

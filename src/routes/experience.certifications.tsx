@@ -19,77 +19,88 @@ export const Route = createFileRoute("/experience/certifications")({
 
 const CERTS = [
   {
-    issuer: "Cisco Networking Academy",
-    title: "Getting Started with Cisco Packet Tracer",
-    date: "Oct 2025",
-    domain: "Networking",
+    issuer: "Centri Security",
+    title: "Blue Team Junior Analyst (BTJA)",
+    date: "2026",
+    domain: "Cybersecurity",
     description:
-      "Hands-on introduction to Cisco Packet Tracer — the industry-standard network simulation environment used for designing, building, and troubleshooting network topologies without physical hardware.",
+      "Specialized defensive security credential focused on security operations, threat hunting, log analysis, traffic analysis, and incident triage.",
     skills: [
-      "Network topology design",
-      "Router & switch configuration",
-      "CLI-based device setup",
-      "Packet simulation & tracing",
-      "LAN/WAN troubleshooting",
+      "Security Operations",
+      "Incident Response",
+      "Log Triage & Analysis",
+      "Network Security Monitoring",
+      "Wazuh & Splunk",
+    ],
+  },
+  {
+    issuer: "Anthropic",
+    title: "Model Context Protocol (MCP) Developer",
+    date: "2026",
+    domain: "Agentic AI",
+    description:
+      "Developer certification focused on building secure context-sharing layers and tool-calling interfaces for autonomous LLM agents.",
+    skills: [
+      "MCP Server Architecture",
+      "Context Management",
+      "LLM Tool Binding",
+      "API Security",
+    ],
+  },
+  {
+    issuer: "Cisco Networking Academy",
+    title: "Ethical Hacker Path (18+ credentials)",
+    date: "2025 – 2026",
+    domain: "Offensive Security",
+    description:
+      "Comprehensive learning path and credentials spanning application vulnerability exploitation, post-exploitation techniques, social engineering, and wireless network security.",
+    skills: [
+      "Application Vulnerability Exploitation",
+      "Post-Exploitation Techniques",
+      "Wireless Network Security",
+      "Information Gathering & Scanning",
+    ],
+  },
+  {
+    issuer: "Kaggle",
+    title: "Machine Learning Certification",
+    date: "2025",
+    domain: "Machine Learning",
+    description:
+      "Hands-on certification covering core machine learning pipelines, feature engineering, and model training/validation using PyTorch and pandas.",
+    skills: [
+      "Feature Engineering",
+      "Model Validation",
+      "PyTorch Pipelines",
+      "Data Analysis",
     ],
   },
   {
     issuer: "Deloitte (via Forage)",
     title: "Cybersecurity Job Simulation",
-    date: "Oct 2025",
+    date: "2025",
     domain: "Cybersecurity",
     description:
-      "Practical simulation of real-world cybersecurity analyst work at Deloitte. Completed applied tasks in log analysis, threat identification, and writing up findings — mirroring what junior analysts do on their first engagements.",
+      "Practical simulation of cybersecurity analyst work at Deloitte. Completed applied tasks in security log analysis, threat identification, and forensic report writing.",
     skills: [
       "Security log analysis",
       "Threat identification",
       "Incident documentation",
       "SOC analyst workflows",
-      "Cybersecurity reporting",
     ],
   },
   {
     issuer: "Tata Group (via Forage)",
-    title: "Cybersecurity Analyst Job Simulation",
-    date: "Oct 2025",
+    title: "Identity & Access Management (IAM) Simulation",
+    date: "2025",
     domain: "Cybersecurity · IAM",
     description:
-      "End-to-end simulation of an IAM analyst role at Tata Consultancy Services. Covered identity lifecycle management, IAM strategy assessment, and designing custom access control solutions — key skills for enterprise security roles.",
+      "Role-playing simulation of an IAM analyst at TCS, designing custom identity architectures, access policies, and permission boundaries.",
     skills: [
-      "IAM fundamentals",
-      "IAM strategy assessment",
-      "Access control design",
-      "Custom IAM solution crafting",
-      "Platform integration concepts",
-    ],
-  },
-  {
-    issuer: "Qualcomm",
-    title: "AI Upskilling Program",
-    date: "Nov 2025",
-    domain: "AI / ML",
-    description:
-      "Qualcomm's industry AI upskilling program covering applied artificial intelligence and machine learning concepts with a focus on real-world deployment. Recognised with a verified credential from Qualcomm's official training division.",
-    skills: [
-      "Applied AI/ML concepts",
-      "Model deployment fundamentals",
-      "AI in industry contexts",
-      "Emerging AI technologies",
-    ],
-  },
-  {
-    issuer: "Google",
-    title: "5-Day AI Agents Intensive Course",
-    date: "2025",
-    domain: "Agentic AI",
-    description:
-      "Intensive 5-day course run by Google covering the architecture and implementation of AI agents. Topics spanned LLM prompting strategies, tool use, RAG pipelines, multi-agent orchestration, and building production-ready agentic systems.",
-    skills: [
-      "LLM agent architecture",
-      "Tool use & function calling",
-      "RAG pipeline design",
-      "Multi-agent orchestration",
-      "Agentic system patterns",
+      "IAM Architecture",
+      "Access Control Design",
+      "Permission Boundaries",
+      "Security Auditing",
     ],
   },
 ];

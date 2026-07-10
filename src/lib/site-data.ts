@@ -176,43 +176,39 @@ export const POSTS: Post[] = [
 
 export const EXPERIENCES = [
   {
-    role: "Principal Designer",
-    company: "Aperture Labs",
-    period: "2023 — Present",
-    location: "Brooklyn, NY",
+    role: "Android Security & Systems Researcher",
+    company: "Self-Directed Research",
+    period: "May 2026 — July 2026",
+    location: "Realme C15 (MT6765)",
     bullets: [
-      "Leading interaction and brand systems for a portfolio of seed-stage AI startups.",
-      "Built the internal design ops practice from zero to a team of five.",
-      "Shipped 14 production product launches across fintech, audio, and developer tools.",
+      "Conducted MediaTek BROM exploit research to bypass Download Agent authentication using MTKClient and dump the device's seccfg partition.",
+      "Mapped vulnerability attack surfaces on EOL firmware, profiling CVE-2022-20421 (Binder UAF) and CVE-2024-20106 (Type Confusion) via GDB and dmesg.",
+      "Executed bootloader unlocking via BROM RAM patching and resolved Android dynamic partition allocation errors during custom recovery flashing.",
+      "Deployed LineageOS and set up a Kali NetHunter chroot environment to convert the device into a mobile penetration testing platform."
     ],
   },
   {
-    role: "Senior Product Designer",
-    company: "Northwave",
-    period: "2021 — 2023",
-    location: "Remote",
+    role: "Network Operations Lead",
+    company: "ELEXCENTRA Hackathon",
+    period: "March 2026",
+    location: "Andhra University College of Engineering",
     bullets: [
-      "Owned the redesign of the flagship analytics dashboard used by 40k engineers daily.",
-      "Introduced a motion language adopted across the entire product surface.",
+      "Engineered and managed the network infrastructure for a live, 5-hour hackathon supporting 400+ concurrent devices across 6 rooms.",
+      "Configured and deployed Wi-Fi and physical LAN cabling using TP-Link switches along with D-Link and Netgear routers.",
+      "Diagnosed and resolved real-time network congestion, signal degradation, and routing conflicts under pressure to ensure zero downtime."
     ],
   },
   {
-    role: "Designer & Frontend",
-    company: "Studio Voltage",
-    period: "2019 — 2021",
-    location: "London, UK",
+    role: "Machine Learning Research Assistant",
+    company: "NEXUS Research Project",
+    period: "2025",
+    location: "Andhra University (under Dr. Karri Chiranjeevi)",
     bullets: [
-      "Independent practice serving cultural institutions and small luxury brands.",
-      "Awwwards SOTD x3 and a Communication Arts shortlist.",
+      "Engineered a real-time small object detection pipeline for industrial seals and tags utilizing PyTorch, CUDA, and the MMDetection framework.",
+      "Benchmarked advanced CNN and Vision Transformer architectures including TOOD, Deformable DETR, and DINO.",
+      "Achieved 98% accuracy on large objects and improved small-object mAP from 0.0 to 0.28 via resolution scaling and custom data balancing."
     ],
-  },
-  {
-    role: "Junior Designer",
-    company: "Foreword & Co.",
-    period: "2017 — 2019",
-    location: "London, UK",
-    bullets: ["Editorial and identity work for a literary agency and three publishing imprints."],
-  },
+  }
 ];
 
 export const TESTIMONIALS = [
