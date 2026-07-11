@@ -211,6 +211,51 @@ export const EXPERIENCES = [
   }
 ];
 
+export const HACKATHONS = [
+  {
+    title: "HackAP — 1st Place Winner",
+    org: "Government of Andhra Pradesh",
+    period: "2025",
+    project: "Foundra (Multi-agent AI Startup Advisor)",
+    bullets: [
+      "Co-engineered an autonomous business development platform orchestrating 11 LLM agents across 6 developmental phases.",
+      "Recognized by state officials with first place out of hundreds of technical teams.",
+      "Deployed live platform hosting at foundra-main.vercel.app."
+    ]
+  },
+  {
+    title: "ELEXCENTRA Hackathon — Network Operations Lead",
+    org: "Andhra University College of Engineering",
+    period: "March 2026",
+    project: "Infrastructure & Connectivity Management",
+    bullets: [
+      "Designed and deployed the physical Wi-Fi and LAN topology across 6 separate developer rooms.",
+      "Configured TP-Link switches alongside D-Link/Netgear routers supporting 400+ concurrent connections under high load.",
+      "Maintained zero downtime over the 5-hour competitive event."
+    ]
+  },
+  {
+    title: "Smart India Hackathon — National Finalist",
+    org: "Government of India",
+    period: "2024",
+    project: "Satellite Image Mining Detection Pipeline",
+    bullets: [
+      "Selected as national finalist for India's flagship technological platform.",
+      "Engineered machine learning pipelines utilizing PyTorch to detect illegal mining operations from public satellite data."
+    ]
+  },
+  {
+    title: "AURORA 2.0 — Technical Finalist",
+    org: "IIT Dharwad (Beyond The Horizon of Parsec 6.0)",
+    period: "2024",
+    project: "AUCE GeoSentinels Earth Observation Model",
+    bullets: [
+      "Collaborated with AUCE GeoSentinels team to design earth observation models for anomaly detection.",
+      "Benchmarked vision-based models for high-resolution geospatial imagery analysis."
+    ]
+  }
+];
+
 export const TESTIMONIALS = [
   {
     quote:

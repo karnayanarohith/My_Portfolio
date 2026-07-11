@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, useMatchRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { PageHeader } from "@/components/site/PageHeader";
 import { GoDeeper } from "@/components/site/GoDeeper";
-import { EXPERIENCES } from "@/lib/site-data";
+import { EXPERIENCES, HACKATHONS } from "@/lib/site-data";
 
 export const Route = createFileRoute("/experience")({
   head: () => ({
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/experience")({
       { title: "Experience — Karnayana Rohith" },
       { name: "description", content: "A vertical timeline of roles, companies, and outcomes." },
       { property: "og:title", content: "Experience — Karnayana Rohith" },
-      { property: "og:description", content: "Roles, companies, and outcomes — the last seven years." },
+      { property: "og:description", content: "Roles, companies, and outcomes." },
       { property: "og:url", content: "/experience" },
     ],
     links: [{ rel: "canonical", href: "/experience" }],
@@ -31,9 +31,9 @@ function ExperiencePage() {
     <SiteLayout>
       <PageHeader
         index="04 / Experience"
-        eyebrow="2017 — Present"
-        title={<>Seven years,<br /><span className="italic text-dim">four chapters.</span></>}
-        description="A vertical timeline. Hover any entry for the receipts."
+        eyebrow="2025 — Present"
+        title={<>Academic research,<br /><span className="italic text-dim">hands‑on systems.</span></>}
+        description="A timeline of my systems research, network engineering, and machine learning roles."
       />
       <section className="py-16">
         <div className="max-w-5xl mx-auto px-6">
@@ -55,6 +55,34 @@ function ExperiencePage() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* Hackathons & Competitions */}
+      <section className="py-16 border-t border-zinc-900 bg-panel/30">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="mb-12">
+            <h2 className="text-sm font-semibold tracking-widest text-accent uppercase mb-2">Compete</h2>
+            <h3 className="text-4xl font-serif">Hackathons &amp; Competitions</h3>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            {HACKATHONS.map((h) => (
+              <div key={h.title} className="p-8 rounded-2xl bg-panel/40 border border-zinc-800 hover:border-accent/40 transition-all flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-baseline gap-2 mb-4">
+                    <h4 className="text-xl font-serif font-medium leading-snug">{h.title}</h4>
+                    <span className="text-[10px] text-accent tracking-widest uppercase shrink-0">{h.period}</span>
+                  </div>
+                  <p className="text-xs text-dim uppercase tracking-wider mb-4">{h.org} {h.project ? `· ${h.project}` : ""}</p>
+                  <ul className="space-y-2 text-sm text-dim leading-relaxed">
+                    {h.bullets.map((b) => (
+                      <li key={b} className="before:content-['—'] before:text-accent before:mr-2">{b}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
       <GoDeeper
