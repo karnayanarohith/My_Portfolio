@@ -178,7 +178,7 @@ function CertificationsPage() {
           {CERTS.map((cert) => (
             <div
               key={cert.title}
-              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden h-[340px] flex flex-col"
+              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden h-[280px] flex flex-col"
             >
               {/* Full Certificate Preview Link */}
               <a
