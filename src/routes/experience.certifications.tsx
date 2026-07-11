@@ -158,7 +158,7 @@ const CERTS = [
 function CertificationsPage() {
   return (
     <SiteLayout>
-      <div className="max-w-5xl mx-auto px-6 pt-16 pb-24">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 pt-16 pb-24">
         <Breadcrumb
           trail={[
             { to: "/experience", label: "Experience" },
