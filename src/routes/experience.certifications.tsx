@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
-import { CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/experience/certifications")({
   head: () => ({
@@ -23,8 +22,9 @@ const CERTS = [
     title: "Blue Team Junior Analyst (BTJA)",
     date: "2026",
     domain: "Cybersecurity",
+    file: "/certs/Blue Team Junior Analyst Pathway Bundle-btja.pdf",
     description:
-      "Specialized defensive security credential focused on security operations, threat hunting, log analysis, traffic analysis, and incident triage.",
+      "Specialized defensive security credential focused on security operations, threat hunting, log analysis, network security monitoring (Wazuh/Splunk), and incident triage.",
     skills: [
       "Security Operations",
       "Incident Response",
@@ -34,73 +34,123 @@ const CERTS = [
     ],
   },
   {
-    issuer: "Anthropic",
-    title: "Model Context Protocol (MCP) Developer",
-    date: "2026",
+    issuer: "Google",
+    title: "5-Day AI Agents Intensive Course",
+    date: "2025",
     domain: "Agentic AI",
+    file: "/certs/5-Day AI Agents Intensive Course with Google.png",
     description:
-      "Developer certification focused on building secure context-sharing layers and tool-calling interfaces for autonomous LLM agents.",
+      "Intensive 5-day course run by Google covering the architecture and implementation of autonomous AI agents. Topics spanned LLM prompting, tool use, RAG pipelines, and multi-agent orchestration.",
     skills: [
-      "MCP Server Architecture",
-      "Context Management",
-      "LLM Tool Binding",
-      "API Security",
+      "LLM Agent Architecture",
+      "Tool Use & Function Calling",
+      "RAG Pipeline Design",
+      "Multi-Agent Orchestration",
     ],
   },
   {
     issuer: "Cisco Networking Academy",
-    title: "Ethical Hacker Path (18+ credentials)",
-    date: "2025 – 2026",
-    domain: "Offensive Security",
+    title: "Getting Started with Cisco Packet Tracer",
+    date: "Oct 2025",
+    domain: "Networking",
+    file: "/certs/Cisco_Packet_Tracer_certificate_karnayanarohith.pdf",
     description:
-      "Comprehensive learning path and credentials spanning application vulnerability exploitation, post-exploitation techniques, social engineering, and wireless network security.",
+      "Hands-on network simulation training covering topology design, router and switch configuration, CLI device setup, and LAN/WAN troubleshooting using Packet Tracer.",
     skills: [
-      "Application Vulnerability Exploitation",
-      "Post-Exploitation Techniques",
-      "Wireless Network Security",
-      "Information Gathering & Scanning",
+      "Network Topology Design",
+      "Router & Switch Config",
+      "CLI Device Setup",
+      "LAN/WAN Troubleshooting",
     ],
   },
   {
-    issuer: "Kaggle",
-    title: "Machine Learning Certification",
-    date: "2025",
-    domain: "Machine Learning",
+    issuer: "Codec Technologies",
+    title: "Cyber Security Intern Certificate",
+    date: "May 2025 — June 2025",
+    domain: "Cybersecurity",
+    file: "/certs/codec.png",
     description:
-      "Hands-on certification covering core machine learning pipelines, feature engineering, and model training/validation using PyTorch and pandas.",
+      "AICTE & ICAC approved internship certificate representing completed projects in offensive security, vulnerability assessment, and log analysis.",
     skills: [
-      "Feature Engineering",
-      "Model Validation",
-      "PyTorch Pipelines",
-      "Data Analysis",
+      "Vulnerability Assessment",
+      "Traffic Analysis",
+      "Nmap & Wireshark",
+      "Offensive Security Concepts",
+    ],
+  },
+  {
+    issuer: "Qualcomm",
+    title: "AI Upskilling Program",
+    date: "Nov 2025",
+    domain: "AI / ML",
+    file: "/certs/Qualcomm_AI Upskilling certificate_X7D07KKXB6_KARNAYANA ROHITH.pdf",
+    description:
+      "Qualcomm's industry AI upskilling program covering applied artificial intelligence and machine learning concepts with a focus on real-world deployment.",
+    skills: [
+      "Applied AI/ML Concepts",
+      "Model Deployment",
+      "AI in Industry Contexts",
+      "Emerging AI Technologies",
     ],
   },
   {
     issuer: "Deloitte (via Forage)",
     title: "Cybersecurity Job Simulation",
-    date: "2025",
+    date: "Oct 2025",
     domain: "Cybersecurity",
+    file: "/certs/Dellotte.pdf",
     description:
-      "Practical simulation of cybersecurity analyst work at Deloitte. Completed applied tasks in security log analysis, threat identification, and forensic report writing.",
+      "Practical simulation of real-world cybersecurity analyst work at Deloitte. Completed applied tasks in security log analysis, threat identification, and writing up findings.",
     skills: [
-      "Security log analysis",
-      "Threat identification",
-      "Incident documentation",
-      "SOC analyst workflows",
+      "Security Log Analysis",
+      "Threat Identification",
+      "Incident Documentation",
+      "SOC Analyst Workflows",
     ],
   },
   {
     issuer: "Tata Group (via Forage)",
-    title: "Identity & Access Management (IAM) Simulation",
-    date: "2025",
+    title: "Cybersecurity Analyst Job Simulation",
+    date: "Oct 2025",
     domain: "Cybersecurity · IAM",
+    file: "/certs/TATA.pdf",
     description:
-      "Role-playing simulation of an IAM analyst at TCS, designing custom identity architectures, access policies, and permission boundaries.",
+      "End-to-end simulation of an IAM analyst role at Tata Consultancy Services. Covered identity lifecycle management, IAM strategy assessment, and designing access control solutions.",
     skills: [
-      "IAM Architecture",
+      "IAM Fundamentals",
+      "IAM Strategy Assessment",
       "Access Control Design",
-      "Permission Boundaries",
-      "Security Auditing",
+      "Platform Integration Concepts",
+    ],
+  },
+  {
+    issuer: "IIT Dharwad",
+    title: "AURORA 2.0 Technical Competitor",
+    date: "2024",
+    domain: "Geospatial AI",
+    file: "/certs/AURORA 2.0.pdf",
+    description:
+      "Certificate of participation for completing the technical track at AURORA 2.0 organised by IIT Dharwad, developing satellite imagery illegal mining detection models.",
+    skills: [
+      "Geospatial Analytics",
+      "Remote Sensing",
+      "Team Collaboration",
+      "Anomaly Detection",
+    ],
+  },
+  {
+    issuer: "Ministry of Education (Govt. of India)",
+    title: "Smart India Hackathon Competitor",
+    date: "2024",
+    domain: "Product Development",
+    file: "/certs/SIH PARTICIPATION.pdf",
+    description:
+      "Certificate of participation for competing in the grand finale of Smart India Hackathon, the flagship national hackathon of India, solving high-impact domain challenges.",
+    skills: [
+      "Product Prototyping",
+      "Rapid Development",
+      "Problem Solving",
+      "System Presentation",
     ],
   },
 ];
@@ -120,46 +170,70 @@ function CertificationsPage() {
           <p className="text-accent text-[10px] tracking-widest uppercase mb-4">Verified Credentials</p>
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Certifications.</h1>
           <p className="text-dim text-lg max-w-2xl leading-relaxed">
-            Industry certifications earned through hands-on simulations, course completions, and verified programs.
-            Each one represents applied practice, not just theory.
+            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Click any certificate to open it.
           </p>
         </div>
 
-        <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {CERTS.map((cert) => (
             <div
               key={cert.title}
-              className="p-8 md:p-10 rounded-2xl bg-panel border border-zinc-800"
+              className="group relative rounded-2xl border border-zinc-800 bg-panel/30 overflow-hidden flex flex-col h-[560px]"
             >
-              {/* Header */}
-              <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <span className="text-[10px] text-accent tracking-widest uppercase">{cert.issuer}</span>
-                    <span className="text-zinc-700">·</span>
-                    <span className="text-[10px] text-dim tracking-widest uppercase">{cert.date}</span>
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-serif">{cert.title}</h2>
-                </div>
-                <span className="text-[10px] tracking-widest uppercase px-3 py-1.5 rounded-full ring-1 ring-zinc-800 text-dim shrink-0">
-                  {cert.domain}
-                </span>
+              {/* Visual preview of Certificate */}
+              <div className="relative h-64 w-full bg-zinc-950 overflow-hidden border-b border-zinc-900 shrink-0">
+                {cert.file.endsWith(".pdf") ? (
+                  <iframe
+                    src={`${cert.file}#toolbar=0&navpanes=0&scrollbar=0`}
+                    className="w-full h-full pointer-events-none scale-100 origin-top"
+                    title={cert.title}
+                  />
+                ) : (
+                  <img
+                    src={cert.file}
+                    alt={cert.title}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                  />
+                )}
+                {/* View link overlay */}
+                <a
+                  href={cert.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-[2px]"
+                >
+                  <span className="text-xs uppercase tracking-widest px-4 py-2 ring-1 ring-white/60 bg-black/60 text-white rounded">
+                    Open Full Document ↗
+                  </span>
+                </a>
               </div>
 
-              {/* Description */}
-              <p className="text-dim leading-relaxed mb-8">{cert.description}</p>
+              {/* Text about it in the bottom half of the certificate card */}
+              <div className="p-6 flex flex-col justify-between flex-1 bg-surface/50 backdrop-blur-sm">
+                <div>
+                  <div className="flex justify-between items-baseline gap-2 mb-2">
+                    <span className="text-[10px] text-accent tracking-widest uppercase">{cert.issuer}</span>
+                    <span className="text-[9px] text-dim shrink-0">{cert.date}</span>
+                  </div>
+                  <h2 className="text-xl font-serif mb-3 leading-snug group-hover:text-accent transition-colors">
+                    {cert.title}
+                  </h2>
+                  <p className="text-xs text-dim leading-relaxed mb-4 line-clamp-3">
+                    {cert.description}
+                  </p>
+                </div>
 
-              {/* Skills */}
-              <div>
-                <p className="text-[10px] text-dim tracking-widest uppercase mb-4">Skills & Topics</p>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {/* Skills tags */}
+                <div className="flex flex-wrap gap-1.5 mt-auto">
                   {cert.skills.map((skill) => (
-                    <li key={skill} className="flex items-center gap-2.5 text-sm text-dim">
-                      <CheckCircle2 className="size-3.5 text-accent shrink-0" />
+                    <span
+                      key={skill}
+                      className="text-[9px] px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-dim"
+                    >
                       {skill}
-                    </li>
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           ))}
