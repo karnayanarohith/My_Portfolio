@@ -30,6 +30,22 @@ export const Route = createFileRoute("/experience/certifications")({
 
 const CERTS = [
   {
+    issuer: "NPTEL (IISc Bangalore)",
+    title: "Sensors and Actuators",
+    date: "Jan — Apr 2026",
+    domain: "Embedded Systems · IoT",
+    file: "/certs/SENSORS_AND_ACTUATORS.pdf",
+    description:
+      "12-week advanced certification on Sensors and Actuators coordinated by IISc Bangalore. Scored 78% covering microfabrication, MEMS devices, signal conditioning circuits, sensor calibration, and industrial actuators.",
+    skills: [
+      "Signal Conditioning",
+      "MEMS & Microfabrication",
+      "Sensor Calibration",
+      "Industrial Actuators",
+      "Embedded Systems",
+    ],
+  },
+  {
     issuer: "Centri Security",
     title: "Blue Team Junior Analyst (BTJA)",
     date: "2026",
