@@ -185,6 +185,21 @@ const CERTS = [
 
 function CertificationsPage() {
   const [activeCert, setActiveCert] = useState<typeof CERTS[number] | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = (cert: typeof CERTS[number]) => {
+    setActiveCert(cert);
+    setTimeout(() => {
+      setIsOpen(true);
+    }, 20);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setTimeout(() => {
+      setActiveCert(null);
+    }, 300);
+  };
 
   return (
     <SiteLayout>
@@ -211,7 +226,7 @@ function CertificationsPage() {
               <div
                 key={cert.title}
                 className="group relative overflow-hidden rounded-xl aspect-[4/3] bg-panel ring-1 ring-white/5 hover:ring-accent/30 transition-all cursor-pointer"
-                onClick={() => setActiveCert(cert)}
+                onClick={() => handleOpen(cert)}
               >
                 {/* Visual Project-like Gradient Card */}
                 <div
@@ -255,11 +270,19 @@ function CertificationsPage() {
         {/* Modal Overlay for displaying active certificate */}
         {activeCert && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-modal-backdrop"
-            onClick={() => setActiveCert(null)}
+            className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              isOpen
+                ? "bg-black/95 backdrop-blur-md opacity-100"
+                : "bg-black/0 backdrop-blur-none opacity-0 pointer-events-none"
+            }`}
+            onClick={handleClose}
           >
             <div
-              className="relative w-full max-w-6xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl animate-modal-content"
+              className={`relative w-full max-w-6xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                isOpen
+                  ? "scale-100 translate-y-0 opacity-100"
+                  : "scale-95 translate-y-4 opacity-0"
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -283,7 +306,7 @@ function CertificationsPage() {
                     Open Original ↗
                   </a>
                   <button
-                    onClick={() => setActiveCert(null)}
+                    onClick={handleClose}
                     className="p-1 text-dim hover:text-foreground hover:bg-zinc-900 rounded-lg transition-colors cursor-pointer"
                     aria-label="Close modal"
                   >
