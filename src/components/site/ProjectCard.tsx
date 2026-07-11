@@ -9,6 +9,7 @@ export type Project = {
   stack: string[];
   blurb: string;
   accent?: string;
+  github?: string;
 };
 
 export function ProjectCard({ p, offset = false }: { p: Project; offset?: boolean }) {

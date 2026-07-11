@@ -19,14 +19,18 @@ export const Route = createFileRoute("/work/case-studies")({
 });
 
 function CaseStudiesPage() {
-  const studies = PROJECTS.slice(0, 3);
+  const slugs = ["aegis", "foundra", "realme-c15-nethunter", "file-recovery"];
+  const studies = slugs
+    .map((slug) => PROJECTS.find((p) => p.slug === slug))
+    .filter((p): p is (typeof PROJECTS)[number] => !!p);
+
   return (
     <SiteLayout>
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-24">
         <Breadcrumb trail={[{ to: "/work", label: "Work" }, { label: "Case Studies" }]} />
         <h1 className="text-5xl md:text-7xl font-serif mb-6">Case Studies.</h1>
         <p className="text-dim text-lg max-w-2xl mb-20 leading-relaxed">
-          Three projects in depth: the problem, the moves, the outcome, and the things I'd do differently.
+          Four detailed engineering case studies: system architectures, security assessments, and raw code-level implementation details.
         </p>
         <div className="space-y-8">
           {studies.map((p, i) => (
@@ -34,6 +38,7 @@ function CaseStudiesPage() {
               key={p.slug}
               to="/work/$project"
               params={{ project: p.slug }}
+              search={{ study: true }}
               className="group block p-10 rounded-2xl bg-panel border border-zinc-800 hover:border-accent/40 transition-all"
             >
               <div className="flex items-start justify-between gap-8">

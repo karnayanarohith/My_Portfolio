@@ -113,7 +113,7 @@ function CVEDetailPage() {
 
           {/* CVE pill grid */}
           <div className="flex flex-wrap gap-2">
-            {entry.cves.map((cve) => (
+            {entry.cves.map((cve: any) => (
               <span
                 key={cve}
                 className="flex items-center gap-2 text-[10px] tracking-widest uppercase px-3 py-1.5 rounded-full ring-1 ring-zinc-800 text-dim"
@@ -129,7 +129,7 @@ function CVEDetailPage() {
         <section className="mb-20 p-8 rounded-2xl bg-panel border border-zinc-800">
           <p className="text-[10px] text-accent tracking-widest uppercase mb-6">Device Fingerprint</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {entry.deviceInfo.map((d) => (
+            {entry.deviceInfo.map((d: any) => (
               <div key={d.label}>
                 <p className="text-[10px] text-dim tracking-widest uppercase mb-1">{d.label}</p>
                 <p className="text-sm font-mono text-foreground">{d.value}</p>

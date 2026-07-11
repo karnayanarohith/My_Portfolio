@@ -10,6 +10,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "An autonomous AI security agent that reasons, plans, and executes shell commands — with persistent memory, tool orchestration, and a built-in self-defense layer against prompt injection.",
     accent: "#00e5ff",
+    github: "https://github.com/karnayanarohith/Aegis",
   },
   {
     slug: "foundra",
@@ -20,6 +21,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "An AI startup operating system — multi-agent platform that takes a founder's raw idea through 6 sequential phases from problem discovery to go-to-market strategy, with boardroom-level decision agents.",
     accent: "#5ce1e6",
+    github: "https://github.com/karnayanarohith/Foundra",
   },
   {
     slug: "aegis-guard",
@@ -30,6 +32,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "A 4-layer prompt injection firewall for local LLM agents — regex pattern engine, structural analyzer, semantic embedding layer, and LLM judge — with a p99 latency under 150ms.",
     accent: "#ff6b6b",
+    github: "https://github.com/karnayanarohith/Aegis_guard",
   },
   {
     slug: "realme-c15-nethunter",
@@ -40,6 +43,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "A complete mobile security case study: bypassing hardware-level SLA/DAA BROM controls, manually injecting logical system blocks with a 1MB offset, downgrading bootloader stacks, and deploying a Kali NetHunter penetration platform.",
     accent: "#ff007f",
+    github: "https://github.com/karnayanarohith/Android_Security_research",
   },
   {
     slug: "file-recovery",
@@ -50,6 +54,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "Raw EXT4 file carving tool in C — no libraries, no filesystem APIs. Reads magic bytes directly off block devices, scans 20GB partitions in under 3 minutes, and previews files before recovery.",
     accent: "#00ffd1",
+    github: "https://github.com/karnayanarohith/Aegis_File_Recovery_Tool",
   },
   {
     slug: "deepfake-detection",
@@ -60,6 +65,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "Forensic AI module for detecting deepfake and manipulated media — a core component of the Aegis local security platform, designed for offline analysis with no cloud dependency.",
     accent: "#a78bfa",
+    github: "https://github.com/karnayanarohith/Deepfake_detection",
   },
   {
     slug: "small-object-detection",
@@ -70,6 +76,18 @@ export const PROJECTS: Project[] = [
     blurb:
       "Anchor-based (DDOD) vs transformer-based (DINO) detection for shipping container seal and security tag inspection — trained on a self-collected COCO dataset on a 4GB GPU, with class-wise mAP benchmarking.",
     accent: "#00bfff",
+    github: "https://github.com/karnayanarohith/small-object-detection",
+  },
+  {
+    slug: "the-gauntlet",
+    title: "The Gauntlet",
+    category: "Cybersecurity",
+    year: "2026",
+    stack: ["SageMath", "Python", "Cryptography", "Coppersmith", "CTF"],
+    blurb:
+      "Exploits, number theory scripts, and CTF solver code compiled for Cylab Security Academy's 'The Gauntlet' module — featuring custom Coppersmith and DSA nonce-reuse solutions.",
+    accent: "#e2e8f0",
+    github: "https://github.com/karnayanarohith/THE-GAUNTLET",
   },
   {
     slug: "portfolio",
@@ -80,6 +98,7 @@ export const PROJECTS: Project[] = [
     blurb:
       "A high-performance developer portfolio built with TanStack Router, glassmorphism design language, custom cursor animations, and smooth sub-route navigation — the site you are reading this on.",
     accent: "#f59e0b",
+    github: "https://github.com/karnayanarohith/My_Portfolio",
   },
 ];
 
