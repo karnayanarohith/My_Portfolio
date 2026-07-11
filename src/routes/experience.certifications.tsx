@@ -170,7 +170,7 @@ function CertificationsPage() {
           <p className="text-accent text-[10px] tracking-widest uppercase mb-4">Verified Credentials</p>
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Certifications.</h1>
           <p className="text-dim text-lg max-w-2xl leading-relaxed">
-            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Hover to view the full certificate; click to open the document.
+            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Hover to slide the info down slightly; click to open the document.
           </p>
         </div>
 
@@ -178,7 +178,7 @@ function CertificationsPage() {
           {CERTS.map((cert) => (
             <div
               key={cert.title}
-              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden h-[480px] flex flex-col"
+              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden h-[340px] flex flex-col"
             >
               {/* Full Certificate Preview Link */}
               <a
@@ -209,27 +209,27 @@ function CertificationsPage() {
                 </div>
               </a>
 
-              {/* Sliding Info Overlay Panel (covers the bottom half, slides down on hover) */}
-              <div className="absolute bottom-0 inset-x-0 z-10 bg-zinc-950/95 border-t border-zinc-900 backdrop-blur-md p-6 transition-transform duration-500 ease-in-out transform translate-y-0 group-hover:translate-y-full flex flex-col justify-between h-[230px] pointer-events-none select-none">
+              {/* Sliding Info Overlay Panel (covers the bottom, slides down 10% on hover) */}
+              <div className="absolute bottom-0 inset-x-0 z-10 bg-zinc-950/95 border-t border-zinc-900 backdrop-blur-md p-5 transition-transform duration-500 ease-in-out transform translate-y-0 group-hover:translate-y-[10%] flex flex-col justify-between h-[160px] pointer-events-none select-none">
                 <div>
-                  <div className="flex justify-between items-baseline gap-2 mb-2">
-                    <span className="text-[10px] text-accent tracking-widest uppercase">{cert.issuer}</span>
-                    <span className="text-[9px] text-dim shrink-0">{cert.date}</span>
+                  <div className="flex justify-between items-baseline gap-2 mb-1.5">
+                    <span className="text-[9px] text-accent tracking-widest uppercase">{cert.issuer}</span>
+                    <span className="text-[8px] text-dim shrink-0">{cert.date}</span>
                   </div>
-                  <h2 className="text-lg font-serif mb-2 leading-snug text-foreground">
+                  <h2 className="text-base font-serif mb-1 leading-snug text-foreground line-clamp-1">
                     {cert.title}
                   </h2>
-                  <p className="text-xs text-dim leading-relaxed line-clamp-3">
+                  <p className="text-[11px] text-dim leading-relaxed line-clamp-2">
                     {cert.description}
                   </p>
                 </div>
 
                 {/* Skills tags */}
-                <div className="flex flex-wrap gap-1.5 mt-auto">
+                <div className="flex flex-wrap gap-1 mt-auto">
                   {cert.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="text-[9px] px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-dim"
+                      className="text-[8px] px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-dim"
                     >
                       {skill}
                     </span>
