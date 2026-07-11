@@ -170,7 +170,7 @@ function CertificationsPage() {
           <p className="text-accent text-[10px] tracking-widest uppercase mb-4">Verified Credentials</p>
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Certifications.</h1>
           <p className="text-dim text-lg max-w-2xl leading-relaxed">
-            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Click any certificate to open it.
+            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Hover to view the full certificate; click to open the document.
           </p>
         </div>
 
@@ -178,47 +178,48 @@ function CertificationsPage() {
           {CERTS.map((cert) => (
             <div
               key={cert.title}
-              className="group relative rounded-2xl border border-zinc-800 bg-panel/30 overflow-hidden flex flex-col h-[560px]"
+              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden h-[480px] flex flex-col"
             >
-              {/* Visual preview of Certificate */}
-              <div className="relative h-64 w-full bg-zinc-950 overflow-hidden border-b border-zinc-900 shrink-0">
+              {/* Full Certificate Preview Link */}
+              <a
+                href={cert.file}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 block w-full h-full z-0"
+              >
                 {cert.file.endsWith(".pdf") ? (
                   <iframe
                     src={`${cert.file}#toolbar=0&navpanes=0&scrollbar=0`}
-                    className="w-full h-full pointer-events-none scale-100 origin-top"
+                    className="w-full h-full pointer-events-none border-none scale-100 origin-top"
                     title={cert.title}
                   />
                 ) : (
                   <img
                     src={cert.file}
                     alt={cert.title}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
                   />
                 )}
-                {/* View link overlay */}
-                <a
-                  href={cert.file}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-[2px]"
-                >
-                  <span className="text-xs uppercase tracking-widest px-4 py-2 ring-1 ring-white/60 bg-black/60 text-white rounded">
-                    Open Full Document ↗
+                
+                {/* View link indicator shown on hover */}
+                <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-[10px] uppercase tracking-widest px-3 py-1.5 bg-black/85 text-white rounded border border-zinc-800 backdrop-blur-sm shadow-xl">
+                    Open Document ↗
                   </span>
-                </a>
-              </div>
+                </div>
+              </a>
 
-              {/* Text about it in the bottom half of the certificate card */}
-              <div className="p-6 flex flex-col justify-between flex-1 bg-surface/50 backdrop-blur-sm">
+              {/* Sliding Info Overlay Panel (covers the bottom half, slides down on hover) */}
+              <div className="absolute bottom-0 inset-x-0 z-10 bg-zinc-950/95 border-t border-zinc-900 backdrop-blur-md p-6 transition-transform duration-500 ease-in-out transform translate-y-0 group-hover:translate-y-full flex flex-col justify-between h-[230px] pointer-events-none select-none">
                 <div>
                   <div className="flex justify-between items-baseline gap-2 mb-2">
                     <span className="text-[10px] text-accent tracking-widest uppercase">{cert.issuer}</span>
                     <span className="text-[9px] text-dim shrink-0">{cert.date}</span>
                   </div>
-                  <h2 className="text-xl font-serif mb-3 leading-snug group-hover:text-accent transition-colors">
+                  <h2 className="text-lg font-serif mb-2 leading-snug text-foreground">
                     {cert.title}
                   </h2>
-                  <p className="text-xs text-dim leading-relaxed mb-4 line-clamp-3">
+                  <p className="text-xs text-dim leading-relaxed line-clamp-3">
                     {cert.description}
                   </p>
                 </div>
