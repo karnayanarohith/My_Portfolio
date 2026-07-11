@@ -208,6 +208,28 @@ export const EXPERIENCES = [
       "Benchmarked advanced CNN and Vision Transformer architectures including TOOD, Deformable DETR, and DINO.",
       "Achieved 98% accuracy on large objects and improved small-object mAP from 0.0 to 0.28 via resolution scaling and custom data balancing."
     ],
+  },
+  {
+    role: "Cybersecurity Intern",
+    company: "Codec Technologies",
+    period: "May 2025 — June 2025",
+    location: "Visakhapatnam (AICTE & ICAC Approved)",
+    bullets: [
+      "Completed a 2-month certified program focusing on offensive security concepts, network penetration testing, and defensive logs analysis.",
+      "Conducted vulnerability scanning and security assessment drills using industry-standard tools like Nmap and Wireshark.",
+      "Analyzed traffic patterns and system events to understand common security vulnerabilities including injection attacks and privilege escalations."
+    ],
+  },
+  {
+    role: "AI/ML Intern",
+    company: "APSCHE",
+    period: "May 2025 — June 2025",
+    location: "Andhra Pradesh (State Council of Higher Education)",
+    bullets: [
+      "Built and deployed basic predictive models and data analysis pipelines utilizing Python libraries including NumPy, Pandas, and Scikit-learn.",
+      "Conducted exploratory data analysis (EDA) and data preprocessing on public datasets to prepare them for model training.",
+      "Benchmarked model performance and documented structured engineering workflows for state council academic reviews."
+    ],
   }
 ];
 
