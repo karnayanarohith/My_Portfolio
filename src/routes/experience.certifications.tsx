@@ -184,7 +184,7 @@ function CertificationsPage() {
           <p className="text-accent text-[10px] tracking-widest uppercase mb-4">Verified Credentials</p>
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Certifications.</h1>
           <p className="text-dim text-lg max-w-2xl leading-relaxed">
-            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Hover to reveal the view button; click to preview the certificate.
+            Industry credentials and certificates representing hands-on practice, course completions, and hackathon participations. Hover to reveal the view option; click to preview.
           </p>
         </div>
 
@@ -199,7 +199,7 @@ function CertificationsPage() {
               >
                 {/* Visual Project-like Gradient Card */}
                 <div
-                  className="absolute inset-0 opacity-70 group-hover:opacity-100 transition-all duration-700 group-hover:scale-[1.03]"
+                  className="absolute inset-0 opacity-70 group-hover:opacity-100 transition-all duration-700 group-hover:scale-[1.02]"
                   style={{
                     background: `radial-gradient(circle at 30% 40%, ${accent}25, transparent 60%), linear-gradient(135deg, #0f0f0f, #1a1a1a)`,
                   }}
@@ -225,20 +225,11 @@ function CertificationsPage() {
                   </div>
                 </div>
 
-                {/* Hover overlay that reveals "View Certificate" button */}
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-6 text-center z-20">
-                  <h4 className="text-sm font-medium mb-1 text-foreground line-clamp-2">{cert.title}</h4>
-                  <p className="text-[10px] text-dim mb-4 tracking-wider uppercase">{cert.issuer}</p>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setActiveCert(cert);
-                    }}
-                    className="px-5 py-2.5 bg-accent text-black text-[10px] font-semibold uppercase tracking-widest rounded hover:bg-white hover:scale-105 transition-all duration-200 shadow-lg cursor-pointer"
-                  >
+                {/* Minimalist Floating "View Certificate" label on Hover */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <span className="px-4 py-2 bg-zinc-950/90 text-accent border border-zinc-800 text-[10px] font-semibold uppercase tracking-widest rounded-md backdrop-blur-sm shadow-2xl pointer-events-auto">
                     View Certificate
-                  </button>
+                  </span>
                 </div>
               </div>
             );
@@ -248,11 +239,11 @@ function CertificationsPage() {
         {/* Modal Overlay for displaying active certificate */}
         {activeCert && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md"
             onClick={() => setActiveCert(null)}
           >
             <div
-              className="relative w-full max-w-5xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+              className="relative w-full max-w-6xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -285,21 +276,59 @@ function CertificationsPage() {
                 </div>
               </div>
 
-              {/* Viewport */}
-              <div className="flex-1 bg-zinc-900 flex items-center justify-center overflow-auto p-4 sm:p-6">
-                {activeCert.file.endsWith(".pdf") ? (
-                  <iframe
-                    src={`${activeCert.file}#toolbar=1&navpanes=0`}
-                    className="w-full h-full rounded-lg border border-zinc-800/80 bg-zinc-950"
-                    title={activeCert.title}
-                  />
-                ) : (
-                  <img
-                    src={activeCert.file}
-                    alt={activeCert.title}
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-xl"
-                  />
-                )}
+              {/* Two Column Layout: Viewer on the Left, Details Sidebar on the Right */}
+              <div className="flex-1 overflow-hidden grid lg:grid-cols-12">
+                {/* Viewport (Left/Middle) */}
+                <div className="lg:col-span-8 bg-zinc-900/40 flex items-center justify-center p-4 sm:p-6 border-b lg:border-b-0 lg:border-r border-zinc-900 overflow-auto">
+                  {activeCert.file.endsWith(".pdf") ? (
+                    <iframe
+                      src={`${activeCert.file}#toolbar=1&navpanes=0`}
+                      className="w-full h-full rounded-lg border border-zinc-800/80 bg-zinc-950 min-h-[400px] lg:min-h-0"
+                      title={activeCert.title}
+                    />
+                  ) : (
+                    <img
+                      src={activeCert.file}
+                      alt={activeCert.title}
+                      className="max-w-full max-h-full object-contain rounded-lg shadow-xl"
+                    />
+                  )}
+                </div>
+
+                {/* Details Sidebar (Right) */}
+                <div className="lg:col-span-4 p-6 sm:p-8 flex flex-col justify-between overflow-y-auto bg-zinc-950">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-[10px] text-dim tracking-widest uppercase mb-2">Metadata</p>
+                      <div className="space-y-1 text-sm text-foreground">
+                        <p><span className="text-dim">Issued by:</span> {activeCert.issuer}</p>
+                        <p><span className="text-dim">Date:</span> {activeCert.date}</p>
+                        <p><span className="text-dim">Domain:</span> {activeCert.domain}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] text-dim tracking-widest uppercase mb-2">Description</p>
+                      <p className="text-sm text-dim leading-relaxed">
+                        {activeCert.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t border-zinc-900">
+                    <p className="text-[10px] text-dim tracking-widest uppercase mb-3">Skills Acquired</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {activeCert.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="text-[9px] px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-dim"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
