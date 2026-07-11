@@ -178,7 +178,7 @@ function CertificationsPage() {
           {CERTS.map((cert) => (
             <div
               key={cert.title}
-              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden h-[280px] flex flex-col"
+              className="group relative rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden aspect-[1.6] flex flex-col"
             >
               {/* Full Certificate Preview Link */}
               <a
@@ -210,16 +210,16 @@ function CertificationsPage() {
               </a>
 
               {/* Sliding Info Overlay Panel (covers the bottom, slides down 10% on hover) */}
-              <div className="absolute bottom-0 inset-x-0 z-10 bg-zinc-950/95 border-t border-zinc-900 backdrop-blur-md p-5 transition-transform duration-500 ease-in-out transform translate-y-0 group-hover:translate-y-[10%] flex flex-col justify-between h-[160px] pointer-events-none select-none">
+              <div className="absolute bottom-0 inset-x-0 z-10 bg-zinc-950/95 border-t border-zinc-900 backdrop-blur-md p-3 sm:p-5 transition-transform duration-500 ease-in-out transform translate-y-0 group-hover:translate-y-[10%] flex flex-col justify-between h-[55%] pointer-events-none select-none">
                 <div>
                   <div className="flex justify-between items-baseline gap-2 mb-1.5">
-                    <span className="text-[9px] text-accent tracking-widest uppercase">{cert.issuer}</span>
-                    <span className="text-[8px] text-dim shrink-0">{cert.date}</span>
+                    <span className="text-[8px] sm:text-[9px] text-accent tracking-widest uppercase">{cert.issuer}</span>
+                    <span className="text-[7px] sm:text-[8px] text-dim shrink-0">{cert.date}</span>
                   </div>
-                  <h2 className="text-base font-serif mb-1 leading-snug text-foreground line-clamp-1">
+                  <h2 className="text-xs sm:text-sm lg:text-base font-serif mb-1 leading-snug text-foreground line-clamp-1">
                     {cert.title}
                   </h2>
-                  <p className="text-[11px] text-dim leading-relaxed line-clamp-2">
+                  <p className="text-[9px] sm:text-[10px] lg:text-[11px] text-dim leading-normal sm:leading-relaxed line-clamp-2">
                     {cert.description}
                   </p>
                 </div>
@@ -229,7 +229,7 @@ function CertificationsPage() {
                   {cert.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="text-[8px] px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-dim"
+                      className="text-[7px] sm:text-[8px] px-1 sm:px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-dim"
                     >
                       {skill}
                     </span>

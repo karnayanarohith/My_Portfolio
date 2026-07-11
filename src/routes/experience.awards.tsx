@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/Layout";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
-import { EXPERIENCES } from "@/lib/site-data";
 
 export const Route = createFileRoute("/experience/awards")({
   head: () => ({
@@ -88,9 +87,9 @@ function AwardsPage() {
           ))}
         </div>
 
-        {/* Timeline Path (matching the Experience page timeline style) */}
+        {/* Timeline Path (matching the Experience page timeline style with extra space) */}
         <div>
-          <ol className="relative border-l border-zinc-800 ml-3 space-y-16">
+          <ol className="relative border-l border-zinc-800 ml-3 space-y-28">
             {ACHIEVEMENTS.map((a, idx) => (
               <li key={a.title} className="pl-10 relative group">
                 {/* Timeline Circle Node */}
@@ -136,7 +135,7 @@ function AwardsPage() {
                 )}
 
                 {/* Separator line except for last item */}
-                {idx < ACHIEVEMENTS.length - 1 && <div className="h-px mt-12 border-b border-zinc-900/50" />}
+                {idx < ACHIEVEMENTS.length - 1 && <div className="h-px mt-20 border-b border-zinc-900/50" />}
               </li>
             ))}
           </ol>
