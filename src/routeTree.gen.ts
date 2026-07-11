@@ -20,7 +20,6 @@ import { Route as WorkCaseStudiesRouteImport } from './routes/work.case-studies'
 import { Route as WorkBlogRouteImport } from './routes/work.blog'
 import { Route as WorkProjectRouteImport } from './routes/work.$project'
 import { Route as ExperienceTestimonialsRouteImport } from './routes/experience.testimonials'
-import { Route as ExperienceServicesRouteImport } from './routes/experience.services'
 import { Route as ExperienceCertificationsRouteImport } from './routes/experience.certifications'
 import { Route as ExperienceAwardsRouteImport } from './routes/experience.awards'
 import { Route as AboutUsesRouteImport } from './routes/about.uses'
@@ -86,11 +85,6 @@ const ExperienceTestimonialsRoute = ExperienceTestimonialsRouteImport.update({
   path: '/testimonials',
   getParentRoute: () => ExperienceRoute,
 } as any)
-const ExperienceServicesRoute = ExperienceServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
-  getParentRoute: () => ExperienceRoute,
-} as any)
 const ExperienceCertificationsRoute =
   ExperienceCertificationsRouteImport.update({
     id: '/certifications',
@@ -150,7 +144,6 @@ export interface FileRoutesByFullPath {
   '/about/uses': typeof AboutUsesRoute
   '/experience/awards': typeof ExperienceAwardsRoute
   '/experience/certifications': typeof ExperienceCertificationsRoute
-  '/experience/services': typeof ExperienceServicesRoute
   '/experience/testimonials': typeof ExperienceTestimonialsRoute
   '/work/$project': typeof WorkProjectRoute
   '/work/blog': typeof WorkBlogRouteWithChildren
@@ -173,7 +166,6 @@ export interface FileRoutesByTo {
   '/about/uses': typeof AboutUsesRoute
   '/experience/awards': typeof ExperienceAwardsRoute
   '/experience/certifications': typeof ExperienceCertificationsRoute
-  '/experience/services': typeof ExperienceServicesRoute
   '/experience/testimonials': typeof ExperienceTestimonialsRoute
   '/work/$project': typeof WorkProjectRoute
   '/work/blog': typeof WorkBlogRouteWithChildren
@@ -196,7 +188,6 @@ export interface FileRoutesById {
   '/about/uses': typeof AboutUsesRoute
   '/experience/awards': typeof ExperienceAwardsRoute
   '/experience/certifications': typeof ExperienceCertificationsRoute
-  '/experience/services': typeof ExperienceServicesRoute
   '/experience/testimonials': typeof ExperienceTestimonialsRoute
   '/work/$project': typeof WorkProjectRoute
   '/work/blog': typeof WorkBlogRouteWithChildren
@@ -221,7 +212,6 @@ export interface FileRouteTypes {
     | '/about/uses'
     | '/experience/awards'
     | '/experience/certifications'
-    | '/experience/services'
     | '/experience/testimonials'
     | '/work/$project'
     | '/work/blog'
@@ -244,7 +234,6 @@ export interface FileRouteTypes {
     | '/about/uses'
     | '/experience/awards'
     | '/experience/certifications'
-    | '/experience/services'
     | '/experience/testimonials'
     | '/work/$project'
     | '/work/blog'
@@ -266,7 +255,6 @@ export interface FileRouteTypes {
     | '/about/uses'
     | '/experience/awards'
     | '/experience/certifications'
-    | '/experience/services'
     | '/experience/testimonials'
     | '/work/$project'
     | '/work/blog'
@@ -365,13 +353,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExperienceTestimonialsRouteImport
       parentRoute: typeof ExperienceRoute
     }
-    '/experience/services': {
-      id: '/experience/services'
-      path: '/services'
-      fullPath: '/experience/services'
-      preLoaderRoute: typeof ExperienceServicesRouteImport
-      parentRoute: typeof ExperienceRoute
-    }
     '/experience/certifications': {
       id: '/experience/certifications'
       path: '/certifications'
@@ -457,14 +438,12 @@ const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
 interface ExperienceRouteChildren {
   ExperienceAwardsRoute: typeof ExperienceAwardsRoute
   ExperienceCertificationsRoute: typeof ExperienceCertificationsRoute
-  ExperienceServicesRoute: typeof ExperienceServicesRoute
   ExperienceTestimonialsRoute: typeof ExperienceTestimonialsRoute
 }
 
 const ExperienceRouteChildren: ExperienceRouteChildren = {
   ExperienceAwardsRoute: ExperienceAwardsRoute,
   ExperienceCertificationsRoute: ExperienceCertificationsRoute,
-  ExperienceServicesRoute: ExperienceServicesRoute,
   ExperienceTestimonialsRoute: ExperienceTestimonialsRoute,
 }
 

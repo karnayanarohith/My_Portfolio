@@ -21,7 +21,6 @@ export const Route = createFileRoute("/experience")({
 function ExperiencePage() {
   const matchRoute = useMatchRoute();
   const isChildRoute =
-    matchRoute({ to: "/experience/services" }) ||
     matchRoute({ to: "/experience/testimonials" }) ||
     matchRoute({ to: "/experience/awards" }) ||
     matchRoute({ to: "/experience/certifications" });

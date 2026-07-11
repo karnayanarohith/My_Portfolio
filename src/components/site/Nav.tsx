@@ -17,7 +17,6 @@ const subNav: Record<string, Sub[]> = {
     // { to: "/work/blog", label: "Blog / Thoughts", desc: "Articles, ideas, posts" },
   ],
   Experience: [
-    { to: "/experience/services", label: "Services", desc: "Freelance offerings & pricing" },
     { to: "/experience/certifications", label: "Certifications", desc: "Verified credentials & courses" },
     { to: "/experience/awards", label: "Achievements", desc: "Hackathon wins & recognitions" },
     { to: "/experience/testimonials", label: "Testimonials", desc: "Words from collaborators" },
