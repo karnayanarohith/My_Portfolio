@@ -174,7 +174,7 @@ function CertificationsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {CERTS.map((cert) => (
             <div
               key={cert.title}
