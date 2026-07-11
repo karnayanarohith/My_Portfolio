@@ -255,11 +255,11 @@ function CertificationsPage() {
         {/* Modal Overlay for displaying active certificate */}
         {activeCert && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-modal-backdrop"
             onClick={() => setActiveCert(null)}
           >
             <div
-              className="relative w-full max-w-6xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+              className="relative w-full max-w-6xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl animate-modal-content"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
