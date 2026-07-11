@@ -87,9 +87,9 @@ function AwardsPage() {
           ))}
         </div>
 
-        {/* Timeline Path (matching the Experience page timeline style with extra space) */}
+        {/* Timeline Path (matching the Experience page timeline style with extra space and reduced sizes) */}
         <div>
-          <ol className="relative border-l border-zinc-800 ml-3 space-y-28">
+          <ol className="relative border-l border-zinc-800 ml-3 space-y-36">
             {ACHIEVEMENTS.map((a, idx) => (
               <li key={a.title} className="pl-10 relative group">
                 {/* Timeline Circle Node */}
@@ -97,19 +97,19 @@ function AwardsPage() {
                 
                 {/* Header */}
                 <div className="flex flex-wrap items-baseline justify-between gap-3 mb-2">
-                  <h3 className="text-3xl font-serif group-hover:text-accent transition-colors duration-300">
+                  <h3 className="text-2xl font-serif group-hover:text-accent transition-colors duration-300">
                     {a.title}
                   </h3>
                   <span className="text-[10px] text-accent tracking-widest uppercase font-mono">{a.year}</span>
                 </div>
                 
                 {/* Org & Sub-Badge */}
-                <p className="text-dim text-sm mb-2">
-                  {a.org} <span className="text-zinc-700">·</span> <span className="text-accent font-mono uppercase text-[10px] tracking-wider">{a.note}</span>
+                <p className="text-dim text-xs mb-3">
+                  {a.org} <span className="text-zinc-800">·</span> <span className="text-accent font-mono uppercase text-[9px] tracking-wider">{a.note}</span>
                 </p>
 
                 {/* Details Paragraph */}
-                <p className="text-dim text-base leading-relaxed mb-6">{a.detail}</p>
+                <p className="text-dim text-sm leading-relaxed mb-5">{a.detail}</p>
 
                 {/* Tech Chips */}
                 <div className="flex flex-wrap gap-1.5">
@@ -135,7 +135,7 @@ function AwardsPage() {
                 )}
 
                 {/* Separator line except for last item */}
-                {idx < ACHIEVEMENTS.length - 1 && <div className="h-px mt-20 border-b border-zinc-900/50" />}
+                {idx < ACHIEVEMENTS.length - 1 && <div className="h-px mt-24 border-b border-zinc-900/50" />}
               </li>
             ))}
           </ol>
