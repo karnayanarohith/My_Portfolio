@@ -2002,6 +2002,44 @@ python3 mtk.py e userdata`}</StudyCodeBlock>
                 </div>
               ))}
             </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Research Publication & Operational Security (OPSEC)</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To publish these security findings as a reproducible case study while maintaining operational security, we established a structured public repository: <a href="https://github.com/karnayanarohith/Android_Security_research" target="_blank" rel="noreferrer" className="text-accent hover:underline">github.com/karnayanarohith/Android_Security_research</a>. We structured the case study directory layout as follows:
+            </p>
+            <StudyCodeBlock>{`REALME_C15/
+├── README.md
+├── 01_device_recon/
+│   ├── README.md
+│   ├── device_props_redacted.txt
+│   ├── kernel_version.txt
+│   └── baseline_log_redacted.txt
+├── 02_brom_da_bypass/
+│   ├── README.md
+│   ├── terminal_log_redacted.txt
+│   ├── seccfg/
+│   │   ├── seccfg_BEFORE.bin
+│   │   ├── seccfg_AFTER.bin
+│   │   ├── hex_BEFORE.txt
+│   │   ├── hex_AFTER.txt
+│   │   └── hex_DIFF.txt
+│   └── screenshots/
+├── 03_cve_2022_20421/
+│   └── README.md
+└── 04_unpatched_cve_landscape/
+    └── README.md`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Prior to committing terminal outputs and configuration dumps to the public version control index, we ran sanitation scripts using stream editors to prevent the exposure of unique device serial numbers, chip identifiers, and modem MEID codes:
+            </p>
+            <StudyCodeBlock>{`# Redact MediaTek ME ID from the BROM exploit transaction log
+$ sed -i 's/E1FB76F106BC9E0D9A1041B7C91997EF/[REDACTED_ME_ID]/g' terminal_log_redacted.txt
+
+# Redact MediaTek Silicon SoC Hardware Identifier
+$ sed -i 's/CBFC58727C341CF66BE85CA27890F1909400BF2D1B95248CF140399D77F24191/[REDACTED_SOC_ID]/g' terminal_log_redacted.txt
+
+# Redact Device Serial Identifier from ADB property dumps
+$ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</StudyCodeBlock>
+            <StudyOutcome type="success" label="Repository Published" detail="Case study indexed on GitHub with operational security sanitization verified." />
           </section>
         </div>
 
