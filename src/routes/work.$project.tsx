@@ -2582,6 +2582,77 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 </tbody>
               </table>
             </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Research Constraints: Unresolved Challenges & Open Problems</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The following forensic limitations, hardware constraints, and script bugs remain unresolved on the physical testing target:
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-8 text-xs font-mono">
+              {[
+                {
+                  id: "P01",
+                  title: "ROM Install Blocked (CRITICAL)",
+                  impact: "Prevents flashing custom LineageOS 17.1, crDroid, or RealmeUI2 debloated system zips.",
+                  detail: "Every sideload attempt fails at the update_dynamic_partitions assertion due to structural mismatches between the device's super partition metadata header and the ROM installer configuration layout.",
+                },
+                {
+                  id: "P02",
+                  title: "Inoperable Base OS State",
+                  impact: "The device has no booting Android userspace.",
+                  detail: "Flashed stock Android 10 components fail to boot past the little-kernel warning screens, restricting device execution strictly to recovery interfaces.",
+                },
+                {
+                  id: "P03",
+                  title: "Workstation Bootstrapping Dependency",
+                  impact: "Makes device debugging slow and dependent on workstation utilities.",
+                  detail: "A broken physical volume-down button prevents booting recovery via hardware keys. Accessing TWRP mandates connecting to the workstation and executing BROM plstage injections.",
+                },
+                {
+                  id: "P04",
+                  title: "Stock Recovery Touch Driver Failure",
+                  impact: "Stock recovery menus are visible but completely untappable.",
+                  detail: "The recovery image compiled in the decrypted A.85 stock firmware contains no touchscreen controller drivers, leaving the UI unresponsive.",
+                },
+                {
+                  id: "P05",
+                  title: "ADB Key Authorization Catch-22",
+                  impact: "Blocks workstation terminal controls when booted to stock recovery.",
+                  detail: "Wiping userdata clears the local adb_keys file. On boot, recovery displays a permissions dialog that cannot be accepted due to touch driver failure, locking out shell commands.",
+                },
+                {
+                  id: "P06",
+                  title: "Toolchain Boundary Errors",
+                  impact: "Restricts firmware restoration via service-center binaries.",
+                  detail: "SP Flash Tool v5.1836 raises cdt_engineering address boundary check errors, and fails to execute. Next-generation v6 clients remain unvalidated.",
+                },
+                {
+                  id: "P07",
+                  title: "OFP Decryption Pipeline Gaps",
+                  impact: "Complicates rebuilding clean stock firmwares from official OTA packages.",
+                  detail: "The exact parameter specifications and decrypt keys used to invoke the oppo_decrypt utility against the C.13 OFP payload were not documented in the logs.",
+                },
+                {
+                  id: "P08",
+                  title: "NetHunter Kernel Version Mismatch",
+                  impact: "May lead to module instability or compile errors on final execution.",
+                  detail: "The NetHunter update package carries wireless drivers and HID helpers compiled for kernel version 4.9.206, whereas the device base firmware operates on a 4.19.127 kernel stack.",
+                },
+              ].map((p) => (
+                <div key={p.id} className="p-5 rounded-xl bg-panel border border-zinc-900 hover:border-zinc-800 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] text-red-400 font-semibold tracking-wider font-mono">{p.id}</span>
+                      <span className="text-foreground font-semibold font-sans">{p.title}</span>
+                    </div>
+                    <div className="space-y-2 text-[11px] leading-relaxed">
+                      <p><span className="text-zinc-500">Impact:</span> {p.impact}</p>
+                      <p><span className="text-zinc-500">Details:</span> {p.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         </div>
 
