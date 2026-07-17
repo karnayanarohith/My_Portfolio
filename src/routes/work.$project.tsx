@@ -3,7 +3,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { 
   ArrowLeft, ArrowRight, Shield, CheckCircle2, XCircle, AlertTriangle, 
   Terminal, ChevronRight, BookOpen, Cpu, Settings, Activity,
-  Database, FileText, Image, Camera, Workflow, Play, ExternalLink, Code
+  Database, FileText, Image, Camera, Workflow, Play, ExternalLink, Code, FolderTree
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/Layout";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
@@ -2188,6 +2188,7 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 { id: "roms", label: "ROMs & Payloads", icon: Workflow },
                 { id: "environment", label: "Environment Profile", icon: Cpu },
                 { id: "archive", label: "ROM Archive", icon: Database },
+                { id: "workspace", label: "Workspace Layout", icon: FolderTree },
               ].map((tab) => {
                 const Icon = tab.icon;
                 const active = activeFileTab === tab.id;
@@ -2472,6 +2473,93 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+
+              {activeFileTab === "workspace" && (
+                <div className="space-y-4">
+                  <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-2">Workspace Directory Tree & Mapping Schema</h5>
+                  <p className="text-dim text-xs leading-relaxed mb-3">
+                    The filesystem hierarchy mapping on the workstation organizes the raw stock partitions, decrypters, exploit payloader folders, recovery zips, and target ROM structures:
+                  </p>
+                  <StudyCodeBlock>{`/home/rohith/Documents/projects/CS/
+├── Realme_C15/
+│   ├── MTKClient\\BROM Exploit/
+│   │   ├── RMX2180export_11_C.13_2022070513370000/
+│   │   │   └── RMX2180export_11_C.13_2022070513370000.ofp (C.13 Android 11 OFP)
+│   │   ├── brom_blueprint.jsx
+│   │   ├── mediatek_brom_exploit_deep_dive.html
+│   │   └── mtkclient/                    ← MTKClient installation
+│   │       ├── mtk.py                    ← MAIN ENTRY POINT
+│   │       ├── requirements.txt
+│   │       ├── Setup/Linux/              ← udev rules
+│   │       └── mtkclient/
+│   │           ├── payloads/mt6765_payload.bin  ← EXPLOIT PAYLOAD
+│   │           ├── Library/Hardware/seccfg.py   ← seccfg logic
+│   │           └── Loader/MTK_DA_V5.bin         ← Download Agent
+│   ├── oppo_decrypt/
+│   │   ├── android10_extracted/          ← A.85 ANDROID 10 PARTITIONS (use these)
+│   │   │   ├── boot.img
+│   │   │   ├── super.img (flashed to device)
+│   │   │   ├── vbmeta.img
+│   │   │   ├── vbmeta_system.img
+│   │   │   ├── vbmeta_vendor.img
+│   │   │   ├── dtbo.img
+│   │   │   ├── recovery.img (stock, no touch)
+│   │   │   ├── preloader_oppo6765.bin (DO NOT FLASH)
+│   │   │   ├── userdata.img
+│   │   │   └── MT6765_Android_scatter.txt
+│   │   └── extracted/                   ← C.13 ANDROID 11 PARTITIONS
+│   │       ├── super.img (7GB, C.13)
+│   │       ├── super.0.* through super.2.* (split parts)
+│   │       └── ... (all C.13 partitions)
+│   ├── rmx2180_android10/
+│   │   └── RMX2180_11_A.85_210205_4f3d4a31/
+│   │       ├── boot.img                 ← A.85 boot image
+│   │       └── RMX2185_11_A.85_210205_4f3d4a31.ofp (unextracted)
+│   ├── research/                        ← ALL EVIDENCE FILES
+│   │   ├── baseline/
+│   │   │   ├── device_props.txt
+│   │   │   ├── kernel_version.txt
+│   │   │   ├── baseline_log.txt
+│   │   │   └── screenshots/
+│   │   ├── seccfg/
+│   │   │   ├── seccfg_BEFORE.bin
+│   │   │   ├── seccfg_AFTER.bin
+│   │   │   ├── hex_BEFORE.txt
+│   │   │   ├── hex_AFTER.txt
+│   │   │   ├── hex_DIFF.txt
+│   │   │   └── terminal_log.txt
+│   │   ├── boot_stock.img              (dumped from device, C.13 kernel)
+│   │   ├── vbmeta_stock.img            (C.13 vbmeta backup)
+│   │   ├── vbmeta_system_stock.img     (C.13 vbmeta_system backup)
+│   │   └── dtbo_stock.img
+│   ├── research_repo/                  ← GITHUB REPO CLONE
+│   │   └── REALME_C15/
+│   │       ├── README.md
+│   │       ├── 01_device_recon/README.md
+│   │       ├── 02_brom_da_bypass/README.md
+│   │       ├── 03_cve_2022_20421/README.md (placeholder)
+│   │       └── 04_unpatched_cve_landscape/README.md (placeholder)
+│   ├── SP_Flash_Tool_v5.1836_Linux/    (incompatible with this device)
+│   ├── SP_Flash_Tool_v6.2228_Linux/    (UNTESTED — try next)
+│   ├── twrp_extracted/
+│   │   └── TWRP-3.7.0_11-RMX2185-UI2-20221003.img ← WORKING TWRP
+│   ├── RealmeUI2_Debloat_v2.2_Sukisu_Mediatek_Nethunter+modules_RMX2185.zip
+│   └── TWRP-3.7.0_11-RMX2185-UI2-20221003.zip
+├── LinageOS/
+│   ├── kali-nethunter-2026.1-rmx2180-los-ksun-ten-full.zip (TARGET ROM)
+│   ├── lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip (fails)
+│   ├── lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185/ (extracted)
+│   │   ├── boot.img
+│   │   ├── vbmeta.img
+│   │   └── dynamic_partitions_op_list
+│   ├── nethunter_extracted/            ← NETHUNTER CONTENTS
+│   │   ├── boot-patcher/Image.gz-dtb  ← NetHunter kernel (4.9.206)
+│   │   ├── data/app/*.apk             ← NetHunter apps
+│   │   └── kalifs-full-arm64.tar.xz  ← Full Kali chroot
+│   └── crDroid.zip (fails)
+└── kali-linux-2026.1-virtualbox-amd64/ (separate, not part of phone project)`}</StudyCodeBlock>
                 </div>
               )}
             </div>
