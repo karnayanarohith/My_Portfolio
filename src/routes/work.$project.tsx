@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { 
   ArrowLeft, ArrowRight, Shield, CheckCircle2, XCircle, AlertTriangle, 
@@ -1362,6 +1363,8 @@ function RealmeNetHunterCaseStudy({
   prev: any;
   next: any;
 }) {
+  const [activeFileTab, setActiveFileTab] = useState("research");
+
   return (
     <SiteLayout>
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-24">
@@ -2123,6 +2126,230 @@ $ sed -i 's/CBFC58727C341CF66BE85CA27890F1909400BF2D1B95248CF140399D77F24191/[RE
 # Redact Device Serial Identifier from ADB property dumps
 $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Repository Published" detail="Case study indexed on GitHub with operational security sanitization verified." />
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Research Inventory & Firmware Mapping</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The following inventory documents the filesystem structure, active firmware payloads, exploit binaries, and custom chroot environments used throughout the device rehabilitation process:
+            </p>
+
+            {/* Glassmorphic File Tabs */}
+            <div className="mb-6 border-b border-zinc-900 flex gap-2 overflow-x-auto pb-px">
+              {[
+                { id: "research", label: "Research Files", icon: FileText },
+                { id: "firmware", label: "Firmware Images", icon: Database },
+                { id: "tools", label: "Toolchain & Utilities", icon: Settings },
+                { id: "roms", label: "ROMs & Payloads", icon: Workflow },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const active = activeFileTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveFileTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-xs font-mono tracking-wider uppercase border-b-2 transition-all shrink-0 cursor-pointer ${
+                      active
+                        ? "border-accent text-accent bg-accent/5"
+                        : "border-transparent text-dim hover:text-foreground hover:bg-white/[0.02]"
+                    }`}
+                  >
+                    <Icon className="size-3.5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tab Contents */}
+            <div className="p-6 rounded-2xl bg-panel border border-zinc-900 backdrop-blur-md mb-8">
+              {activeFileTab === "research" && (
+                <div className="space-y-4">
+                  <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-2">Primary Evidence & Forensic Logs</h5>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs font-mono text-dim text-left">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-foreground">
+                          <th className="py-2.5 font-medium">File</th>
+                          <th className="py-2.5 font-medium">Workspace Path</th>
+                          <th className="py-2.5 font-medium">Purpose</th>
+                          <th className="py-2.5 font-medium text-right">State</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-900">
+                        {[
+                          { file: "seccfg_BEFORE.bin", path: "research/seccfg/", desc: "Raw seccfg partition dump before BROM unlock", state: "Unmodified Evidence" },
+                          { file: "seccfg_AFTER.bin", path: "research/seccfg/", desc: "Raw seccfg partition dump after BROM unlock", state: "Unmodified Evidence" },
+                          { file: "hex_BEFORE.txt", path: "research/seccfg/", desc: "xxd Hexadecimal representation of LOCKED state", state: "Generated Log" },
+                          { file: "hex_AFTER.txt", path: "research/seccfg/", desc: "xxd Hexadecimal representation of UNLOCKED state", state: "Generated Log" },
+                          { file: "hex_DIFF.txt", path: "research/seccfg/", desc: "Unified diff exposing offset bit flipping", state: "Primary Evidence" },
+                          { file: "terminal_log.txt", path: "research/seccfg/", desc: "Full BROM crash transaction & DA payload logs", state: "Sanitized Log" },
+                          { file: "device_props.txt", path: "research/baseline/", desc: "Full ADB getprop configuration dump", state: "Sanitized Evidence" },
+                          { file: "kernel_version.txt", path: "research/baseline/", desc: "Active device /proc/version release data", state: "Evidence" },
+                          { file: "baseline_log.txt", path: "research/baseline/", desc: "Timestamped device-recon baseline snapshot", state: "Evidence" },
+                          { file: "boot_stock.img", path: "research/", desc: "Original Android 11 boot block sector dump", state: "Target backup" },
+                          { file: "vbmeta_stock.img", path: "research/", desc: "Original Android 11 AVB metadata block", state: "Target backup" },
+                          { file: "vbmeta_system_stock.img", path: "research/", desc: "Original Android 11 secondary AVB metadata", state: "Target backup" },
+                          { file: "dtbo_stock.img", path: "research/", desc: "Original device tree overlay partition", state: "Target backup" },
+                          { file: "dmesg_twrp.txt", path: "research/", desc: "Syslog diagnostic log captured inside TWRP", state: "Diagnostic Evidence" },
+                        ].map((f, i) => (
+                          <tr key={i} className="hover:bg-white/[0.01]">
+                            <td className="py-2.5 text-foreground font-semibold">{f.file}</td>
+                            <td className="py-2.5">{f.path}</td>
+                            <td className="py-2.5">{f.desc}</td>
+                            <td className="py-2.5 text-right text-accent/80">{f.state}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {activeFileTab === "firmware" && (
+                <div className="space-y-4">
+                  <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-2">Decoded Stock Firmware Images</h5>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs font-mono text-dim text-left">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-foreground">
+                          <th className="py-2.5 font-medium">File</th>
+                          <th className="py-2.5 font-medium">Extraction Directory</th>
+                          <th className="py-2.5 font-medium">Purpose</th>
+                          <th className="py-2.5 font-medium text-right">Deployment Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-900">
+                        {[
+                          { file: "RMX2180export_11_C.13_...zip", path: "Downloaded Asset", desc: "Official Android 11 stock package from India CDN (rms01)", state: "Archived Backup" },
+                          { file: "RMX2180export_11_C.13_...ofp", path: "Extraction base", desc: "Encrypted Oppo OFP archive containing C.13 partition layout", state: "Decoded via oppo_decrypt" },
+                          { file: "boot.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 legacy kernel partition image (A.85 base)", state: "Magisk Patched & Flashed" },
+                          { file: "super.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 sparsed system + vendor volume container", state: "Flashed (Direct Injection)" },
+                          { file: "vbmeta.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 AVB header layout to configure verity-state", state: "Flashed (Zeroed)" },
+                          { file: "vbmeta_system.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 secondary system AVB configuration", state: "Flashed (Zeroed)" },
+                          { file: "vbmeta_vendor.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 vendor verification metadata", state: "Retained (Unflashed)" },
+                          { file: "dtbo.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 Device Tree overlay compiler binary", state: "Flashed (Downgraded)" },
+                          { file: "recovery.img", path: "oppo_decrypt/android10_extracted/", desc: "Android 10 stock recovery (touchscreen driver missing)", state: "Flashed (replaced by TWRP)" },
+                          { file: "preloader_oppo6765.bin", path: "oppo_decrypt/android10_extracted/", desc: "Low-level SoC boot loader stage-1 controller code", state: "Retained (Omitted for safety)" },
+                          { file: "MT6765_Android_scatter.txt", path: "oppo_decrypt/android10_extracted/", desc: "Sector address mappings config file for MT6765 chip", state: "Used in SP Flash Tool audits" },
+                          { file: "[azROM.net]_RMX2180_A.85_...zip", path: "Downloaded Mirror", desc: "Third-party mirror of stock A.85 package", state: "Reference image source" },
+                          { file: "boot.img", path: "rmx2180_android10/...A.85_ofp/", desc: "India A.85 stock kernel image", state: "Reference extraction" },
+                          { file: "boot-debug.img", path: "rmx2180_android10/...A.85_ofp/", desc: "Debug-enabled variants of the stock kernel", state: "Diagnostic backup" },
+                          { file: "RMX2185_11_A.85_...ofp", path: "rmx2180_android10/...A.85_ofp/", desc: "RMX2185 OFP archive container", state: "Stored unextracted" },
+                        ].map((f, i) => (
+                          <tr key={i} className="hover:bg-white/[0.01]">
+                            <td className="py-2.5 text-foreground font-semibold">{f.file}</td>
+                            <td className="py-2.5">{f.path}</td>
+                            <td className="py-2.5">{f.desc}</td>
+                            <td className="py-2.5 text-right text-accent/80">{f.state}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {activeFileTab === "tools" && (
+                <div className="space-y-4">
+                  <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-2">SoC Exploitation & Service Utilities</h5>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs font-mono text-dim text-left">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-foreground">
+                          <th className="py-2.5 font-medium">Utility / Binary</th>
+                          <th className="py-2.5 font-medium">Path</th>
+                          <th className="py-2.5 font-medium">System Role</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-900">
+                        {[
+                          { file: "mtk.py", path: "MTKClient BROM Exploit/mtkclient/", desc: "Main wrapper script interface for Mediatek BROM communications" },
+                          { file: "mt6765_payload.bin", path: "mtkclient/mtkclient/payloads/", desc: "Silicon RAM vulnerability patching exploit shellcode for MT6765 chipsets" },
+                          { file: "MTK_DA_V5.bin", path: "mtkclient/mtkclient/Loader/", desc: "Download Agent binary payload facilitating low-level Flash reads/writes" },
+                          { file: "preloader_oppo6765_Realme_C15.bin", path: "mtkclient/mtkclient/Loader/Preloader/", desc: "Verified handshake preloader target specifically patched for RMX2180" },
+                          { file: "50-android.rules / 51-edl.rules / 52-mtk.rules", path: "mtkclient/Setup/Linux/", desc: "udev configuration records granting system privilege mapping for BROM/EDL usb buses" },
+                          { file: "flash_tool", path: "SP_Flash_Tool_v5.1836_Linux/", desc: "Legacy SP Flash Tool v5 binary (inoperable on target due to offset failures)" },
+                          { file: "SPFlashToolV6", path: "SP_Flash_Tool_v6.2228_Linux/", desc: "Next-generation SP Flash Tool v6 binary" },
+                          { file: "MTK_AllInOne_DA.bin", path: "SP_Flash_Tool_v5.1836_Linux/", desc: "Authentication payload for legacy SP Flash Tool handshake routines" },
+                          { file: "TWRP-3.7.0_11-RMX2185-UI2-20221003.img", path: "twrp_extracted/", desc: "Android 11-compiled custom recovery image containing full storage-mount functionality" },
+                          { file: "seccfg.py", path: "mtkclient/mtkclient/Library/Hardware/", desc: "MTKClient Python parser controlling seccfg structure locks and check-summing offsets" },
+                        ].map((f, i) => (
+                          <tr key={i} className="hover:bg-white/[0.01]">
+                            <td className="py-2.5 text-foreground font-semibold">{f.file}</td>
+                            <td className="py-2.5">{f.path}</td>
+                            <td className="py-2.5">{f.desc}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {activeFileTab === "roms" && (
+                <div className="space-y-6">
+                  <div>
+                    <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">Target Operating Systems & Custom Packages</h5>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs font-mono text-dim text-left">
+                        <thead>
+                          <tr className="border-b border-zinc-800 text-foreground">
+                            <th className="py-2.5 font-medium">ROM File</th>
+                            <th className="py-2.5 font-medium">Workspace Path</th>
+                            <th className="py-2.5 font-medium">Target Base</th>
+                            <th className="py-2.5 font-medium text-right">Installation Verdict</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-900">
+                          {[
+                            { file: "lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip", path: "LinageOS/", base: "Android 10.0 (LineageOS 17.1)", state: "Direct System Inject (1MB offset)" },
+                            { file: "kali-nethunter-2026.1-rmx2180-los-ksun-ten-full.zip", path: "LinageOS/", base: "Kali NetHunter full chroot (Android 10)", state: "Flashed via Magisk Module Manager" },
+                            { file: "crDroid.zip", path: "LinageOS/", base: "Android 10.0 (crDroid v6.27)", state: "Aborted (installer error)" },
+                            { file: "RealmeUI2_Debloat_v2.2_Sukisu_...zip", path: "Realme_C15/", base: "Realme UI 2.0 (Android 11) + NetHunter modules", state: "Aborted (metadata mismatch)" },
+                          ].map((f, i) => (
+                            <tr key={i} className="hover:bg-white/[0.01]">
+                              <td className="py-2.5 text-foreground font-semibold">{f.file}</td>
+                              <td className="py-2.5">{f.path}</td>
+                              <td className="py-2.5">{f.base}</td>
+                              <td className="py-2.5 text-right text-accent/80">{f.state}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* NetHunter Extracted Contents */}
+                  <div className="pt-4 border-t border-zinc-900">
+                    <h6 className="text-xs font-mono text-foreground mb-3 uppercase tracking-wider">Extracted NetHunter Payload Directory Structure</h6>
+                    <StudyCodeBlock>{`nethunter_extracted/
+├── boot-patcher/
+│   ├── anykernel.sh
+│   ├── Image.gz-dtb           ← THE CUSTOM KERNEL (Built for kernel version 4.9.206-NetHunter)
+│   ├── modules/system/lib/modules/4.9.206-NetHunter/
+│   │   ├── drivers/net/wireless/realtek/rtl8188eus/8188eu.ko (Wi-Fi adapter injection driver)
+│   │   ├── drivers/net/wireless/realtek/rtl8812au/88XXau.ko (High-power external antenna driver)
+│   │   └── net/wireguard/wireguard.ko (Kernel-level wireguard support)
+│   └── ramdisk-patch/
+│       ├── init.nethunter.rc (Custom service configs)
+│       ├── keyboard-descriptor.bin (HID keyboard descriptor payload injection)
+│       └── sbin/usb_config.sh (USB Gadget configuration script for DuckHunter HID attacks)
+├── data/app/
+│   ├── NetHunter.apk (Main control console)
+│   ├── NetHunterKeX.apk (VNC remote desktop daemon)
+│   ├── NetHunterStore.apk (Independent app index)
+│   └── NetHunterTerminal.apk (Kali chroot command prompt client)
+├── kalifs-full-arm64.tar.xz   ← FULL KALI CHROOT CONTAINER (~2GB decompressed payload)
+└── META-INF/com/google/android/
+    ├── update-binary
+    ├── update-magisk           ← MAGISK PRIVILEGED HELPER
+    └── updater-script`}</StudyCodeBlock>
+                    <p className="text-dim text-xs leading-relaxed mt-4 font-mono">
+                      <span className="text-accent font-semibold">🔍 Critical Kernel Insights:</span> The NetHunter installer is built against kernel version <code>4.9.206-NetHunter</code> (not <code>4.19.127</code>). The zip package overwrites the device kernel partition entirely. This confirms that the target base requirement (LineageOS 17.1) relates specifically to Android userspace framework compatibility rather than matching the compiler version of the kernel.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
         </div>
 
