@@ -1629,11 +1629,34 @@ $ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt | head -
 $ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt
 [MTK] Connecting to BROM...
 Preloader - Detected regular mode! CPU: MT6765/MT8768t(Helio P35/G35)
+Preloader -     HW version:     0x0
+Preloader -     WDT:            0x10007000
+Preloader -     Uart:           0x11002000
+Preloader -     Brom payload addr:  0x100a00
+Preloader -     DA payload addr:    0x201000
+Preloader -     CQ_DMA addr:    0x10212000
+Preloader -     Var1:           0x25
+Preloader - Disabling Watchdog...
+Preloader - HW code:           0x766
+Preloader - Target config:     0xe5
+Preloader -     SBC enabled:    True
+Preloader -     SLA enabled:    False
+Preloader -     DAA enabled:    True
+Preloader -     SWJTAG enabled: True
+Preloader -     Root cert required: False
+Preloader -     Mem read auth:  True
+Preloader -     Mem write auth: True
+Preloader -     Cmd 0xC8 blocked: True
 Mtk - We're not in bootrom, trying to crash da...
 Exploitation - Crashing da...
 Preloader - [LIB]: upload_data failed with error: DAA_SIG_VERIFY_FAILED (0x7024)
 Preloader - Status: Waiting for PreLoader VCOM, please reconnect mobile/iot device to brom mode
 Preloader - BROM mode detected.
+Preloader -     HW subcode:     0x8a00
+Preloader -     HW Ver:         0xca00
+Preloader -     SW Ver:         0x0
+Preloader - ME_ID:              [REDACTED_ME_ID]
+Preloader - SOC_ID:             [REDACTED_SOC_ID]
 Preloader - [LIB]: Auth file is required. Use --auth option.
 PLTools - Loading payload from mt6765_payload.bin, 0x264 bytes
 Exploitation - Kamakiri Run
