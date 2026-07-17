@@ -1735,6 +1735,40 @@ Main - Keep pressed power button to boot.`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
               While the binary mismatch warnings were displayed because TWRP is not formatted like a standard MTK preloader stage, they were non-fatal. Pressing and holding the power button immediately after jumping successfully forced the device to boot directly into a working TWRP custom recovery interface.
             </p>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">LineageOS Sideload Failure & Dynamic Partition Layout Forensic Investigation</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              With TWRP booted, we performed a factory wipe and attempted to sideload the custom ROM base (<code>lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip</code>) to establish the prerequisite environment for Kali NetHunter. The installation immediately aborted with a device-mapper error:
+            </p>
+            <StudyCodeBlock>{`# Initiate ADB sideload from TWRP recovery context
+$ adb sideload lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip
+Target: google/walleye/walleye:10/QQ3A.200805.001/6578210:user/release-keys
+assert failed: update_dynamic_partitions(package_extract_file("dynamic_partitions_op_list"))
+Updater process ended with ERROR: 1`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              (<em>Note: The "google/walleye" codename in the output is a cosmetic build system artifact of the custom ROM installer, not a mismatch of target devices.</em>)
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To diagnose this assertion failure, we executed forensic shell queries to audit the partition structures inside the recovery environment:
+            </p>
+            <StudyCodeBlock>{`# Inspect partitions structure for a literal 'super' layout block
+~# cat /proc/partitions | grep -i super
+# [No output - no literal partition block named 'super']
+
+# Query all system blocks on the flash memory controller
+~# cat /proc/partitions
+# [Output showed mmcblk0p42 as 7,155,712 blocks (~7GB) - the primary super logical container]
+
+# Verify partition mount points and dynamic flags
+~# cat /etc/recovery.fstab
+# Output: /system and /vendor configurations mapped to "logical,first_stage_mount" flags
+
+# Query custom recovery configuration flags
+~# cat /etc/twrp.flags
+# [Standard partitions listed, no 'super' entry present]`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              This verified that while there was no partition block literally registered as "super" in <code>/proc/partitions</code>, the device indeed used a dynamic, logical structure utilizing <code>mmcblk0p42</code> as the physical super block. The root cause of the sideload error was a layout mismatch: the ROM's internal dynamic partition operation metadata (<code>dynamic_partitions_op_list</code>) could not reconcile with the existing partition tables currently mapped on the flash controller. This blocked standard zip installers from mounting the system/vendor nodes.
+            </p>
           </section>
 
           {/* Phase 2 */}
