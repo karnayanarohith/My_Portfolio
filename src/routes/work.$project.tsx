@@ -2653,6 +2653,119 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 </div>
               ))}
             </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8 font-sans">Research Roadmap: Future Action Plan</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To bypass the current constraints and achieve local root execution, we mapped the following priority targets:
+            </p>
+
+            <div className="space-y-6 mb-8 text-xs font-mono">
+              <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 1: RESOLVE ROM INSTALLATION BLOCK</span>
+                <p className="text-dim leading-relaxed mb-3">
+                  Re-align system tables to permit custom zip installations. We are evaluating four distinct pathways:
+                </p>
+                <ul className="list-disc list-inside text-dim space-y-2 pl-2">
+                  <li><span className="text-foreground">Option A:</span> Invoke next-gen SP Flash Tool v6 directly against decrypted OFP packages to re-establish the partition bounds.</li>
+                  <li><span className="text-foreground">Option B:</span> Sideload Realme UI 1.0 (Android 10 base) debloated stock rom packages to match layout constraints.</li>
+                  <li><span className="text-foreground">Option C:</span> Execute <code>fastboot wipe super</code> and reconstruct logical containers from raw system.img templates.</li>
+                  <li><span className="text-foreground">Option D:</span> Reconcile dynamic partition metadata sizes by modifying the zip's internal <code>dynamic_partitions_op_list</code>.</li>
+                </ul>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                  <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 2: MAGISK ROOT CONTROLS</span>
+                  <p className="text-dim leading-relaxed">
+                    Patch the stock Android 10 <code>boot.img</code> within the Magisk Manager App, pull the patched image, and flash it directly to the boot partition in BROM mode using MTKClient.
+                  </p>
+                </div>
+                <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                  <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 3: NETHUNTER CHROOT DEPLOYMENT</span>
+                  <p className="text-dim leading-relaxed">
+                    Run the Android setup wizard to fully format userspace storage, invoke TWRP custom recovery via BROM plstage, and sideload the 2.4GB Kali NetHunter chroot zip package.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                  <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 4: BINDER CVE-2022-20421</span>
+                  <p className="text-dim leading-relaxed">
+                    Compile the arm64 <i>Badspin</i> LPE exploit payload, upload to <code>/data/local/tmp/</code>, and execute it to audit local kernel privilege escalation.
+                  </p>
+                </div>
+                <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                  <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 5: CVE LANDSCAPING</span>
+                  <p className="text-dim leading-relaxed">
+                    Audit all Android Security and MediaTek PSIRT bulletins from August 2022 onwards to map vulnerabilities affecting MT6765 chips.
+                  </p>
+                </div>
+                <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                  <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 6: CVE-2021-22600</span>
+                  <p className="text-dim leading-relaxed">
+                    Verify the presence of May 2022 patches on the C.13 baseline. Cross-reference kernel symbol table mappings with commit <code>ec6af094ea28</code>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8 font-sans">Hacking & Forensic Takeaways: Lessons Learned</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Our forensic audit and hardware exploration yielded several critical security engineering takeaways:
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-8 text-xs font-mono">
+              {[
+                {
+                  title: "NVD Citation Verification Policy",
+                  desc: "Never cite a vulnerability without validating database records. Initially matching the BROM exploit with CVE-2022-26449 was incorrect (the latter is an unrelated medium-severity bug). BROM exploits lack a single clean CVE number.",
+                },
+                {
+                  title: "Sudo Context in Conda Environment Paths",
+                  desc: "Running sudo python3 invokes the system interpreter rather than Conda's environment bindings. Running sudo $(which python3) ensures that all installed cryptodome and usb dependencies remain correctly mapped.",
+                },
+                {
+                  title: "Interpret dd Write Boundary Limits",
+                  desc: "When dd if=/dev/zero reports 'No space left on device', this indicates a successful transaction. The partition block index has been completely filled with zeros, successfully wiping security signatures.",
+                },
+                {
+                  title: "udev Device Rule Migrations",
+                  desc: "udev configurations have migrated from legacy locations to Setup/Linux/50-android.rules, 51-edl.rules, and 52-mtk.rules. Host configurations must align with the active repository rules.",
+                },
+                {
+                  title: "Verify plstage Status Checksums",
+                  desc: "Preloader execution warnings like 'checksum mismatch' or 'failed preloader patch' are non-fatal when loading custom recovery. Successful jumps are verified when the loader outputs 'Jumping to 0x201000: ok'.",
+                },
+                {
+                  title: "Physical vs Logical Super Containers",
+                  desc: "The lack of a literal 'super' partition block in /proc/partitions does not indicate the absence of logical volumes. The logical system/vendor filesystems are containers mapped inside mmcblk0p42.",
+                },
+                {
+                  title: "Stock Recovery Driver Boundaries",
+                  desc: "Stock recovery images lack touchscreen drivers. Without active key buttons, booting into stock recovery creates a catch-22, as prompt dialogs cannot be accepted after data wipes.",
+                },
+                {
+                  title: "Hardware Drainage Emergency Exit",
+                  desc: "When a hardware target is locked in active boot loops with no physical input controls, draining the 6000mAh battery completely is a valid recovery strategy to force a cold shutdown state.",
+                },
+                {
+                  title: "Unified Silicon Trees & OFP Extraction",
+                  desc: "RMX2185 and RMX2180 components share identical device trees, varying only in RAM capacities. Furthermore, OFP containers are Qualcomm-centric; extracting MediaTek firmware files requires the oppo_decrypt utility.",
+                },
+                {
+                  title: "Magisk & NetHunter Initialization Rules",
+                  desc: "NetHunter installers require userspace data folders to be initialized by completing the first-boot setup wizard. Flashing the chroot archive before this initialization fails.",
+                },
+              ].map((l, i) => (
+                <div key={i} className="p-5 rounded-xl bg-panel border border-zinc-900 hover:border-zinc-800 transition-all flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] text-accent font-semibold tracking-wider block mb-2 uppercase">{l.title}</span>
+                    <p className="text-dim text-[11px] leading-relaxed font-sans">{l.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         </div>
 
