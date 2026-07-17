@@ -2186,6 +2186,8 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 { id: "firmware", label: "Firmware Images", icon: Database },
                 { id: "tools", label: "Toolchain & Utilities", icon: Settings },
                 { id: "roms", label: "ROMs & Payloads", icon: Workflow },
+                { id: "environment", label: "Environment Profile", icon: Cpu },
+                { id: "archive", label: "ROM Archive", icon: Database },
               ].map((tab) => {
                 const Icon = tab.icon;
                 const active = activeFileTab === tab.id;
@@ -2393,6 +2395,82 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                     <p className="text-dim text-xs leading-relaxed mt-4 font-mono">
                       <span className="text-accent font-semibold">🔍 Critical Kernel Insights:</span> The NetHunter installer is built against kernel version <code>4.9.206-NetHunter</code> (not <code>4.19.127</code>). The zip package overwrites the device kernel partition entirely. This confirms that the target base requirement (LineageOS 17.1) relates specifically to Android userspace framework compatibility rather than matching the compiler version of the kernel.
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {activeFileTab === "environment" && (
+                <div className="space-y-4">
+                  <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-2">Workstation Audit Environment Profile</h5>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs font-mono text-dim text-left">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-foreground">
+                          <th className="py-2.5 font-medium">Component</th>
+                          <th className="py-2.5 font-medium">Parameters & Configuration</th>
+                          <th className="py-2.5 font-medium">Technical Role / Verdict</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-900">
+                        {[
+                          { comp: "Host OS Platform", config: "Ubuntu Linux (version 26 / non-LTS development variant)", role: "Primary auditing host environment" },
+                          { comp: "Host Kernel", config: "Linux 7.0.0-15-generic x86_64", role: "USB serial bus mapping driver base" },
+                          { comp: "Runtime Manager", config: "Miniconda3 (Conda Environment: c15)", role: "Interpreter segregation wrapper" },
+                          { comp: "Python Interpreter", config: "Python 3.10.x at /home/rohith/miniconda3/envs/c15/bin/python3", role: "Target runtime for MTKClient operations" },
+                          { comp: "Core Cryptography Package", config: "pycryptodome 3.23.0 (Miniconda scope)", role: "DA payload handshake encryption library" },
+                          { comp: "ADB Service Daemon", config: "ADB v1.0.41 (36.0.0-13206524) at /usr/lib/android-sdk/platform-tools/adb", role: "Userspace bridge control link" },
+                          { comp: "USB Host Mappings", config: "udev rules: 50-android.rules, 51-edl.rules, 52-mtk.rules", role: "Grants non-root access to raw BROM interfaces" },
+                          { comp: "Physical Connection", config: "USB 2.0 direct host bus (no hubs, data-certified line)", role: "Maintains BROM handshake stability limits" },
+                        ].map((env, i) => (
+                          <tr key={i} className="hover:bg-white/[0.01]">
+                            <td className="py-2.5 text-foreground font-semibold">{env.comp}</td>
+                            <td className="py-2.5 text-accent/80">{env.config}</td>
+                            <td className="py-2.5">{env.role}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {activeFileTab === "archive" && (
+                <div className="space-y-4">
+                  <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-2">Unexplored Custom ROM Archive & Mirrors</h5>
+                  <p className="text-dim text-xs leading-relaxed mb-3">
+                    The following custom firmware packages are archived on the host workstation under the SourceForge Android/10 mirrors but have not been deployed to the target:
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs font-mono text-dim text-left">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-foreground">
+                          <th className="py-2.5 font-medium">ROM Image Filename</th>
+                          <th className="py-2.5 font-medium">Base Specification</th>
+                          <th className="py-2.5 font-medium text-right">Audit Priority & Role</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-900">
+                        {[
+                          { file: "REALMEMEUI-DEBLOAT-RUI1-MTK.zip", base: "Realme UI 1.0 (Android 10) Stock Debloated", priority: "CRITICAL NEXT TARGET — Restores standard table alignments" },
+                          { file: "crDroidAndroid-10.0-20240704-Nightmare-v6.11.zip", base: "crDroid v6.11 (Android 10)", priority: "Alternative lightweight environment" },
+                          { file: "Bliss-v12.12-Nightmare-UNOFFICIAL-20240624.zip", base: "Bliss OS 12.12 (Android 10)", priority: "Diagnostic testing baseline option" },
+                          { file: "ShapeShift-1.2.1-Blaziken-UNOFFICIAL-20240505.zip", base: "ShapeShift OS 1.2.1 (Android 10)", priority: "Diagnostic testing baseline option" },
+                          { file: "AncientOS-CIVILIZATION-v4.0.1-Final-Rev-20240327.zip", base: "AncientOS v4.0.1 (Android 10)", priority: "Legacy UI baseline comparison" },
+                          { file: "Nusantara-EOL-nightmare-01042024-OFFICIAL.zip", base: "Nusantara OS EOL (Android 10)", priority: "Lightweight modular interface testing" },
+                          { file: "Fluid-0.6-Quenol-UNOFFICIAL-20240325.zip", base: "Fluid OS 0.6 (Android 10)", priority: "Diagnostic custom kernel sandbox" },
+                          { file: "Havoc-OS-v3.12-RMX2185-GApps.zip", base: "Havoc OS v3.12 (Android 10)", priority: "GApps integrated test archive" },
+                          { file: "BootleggersROM-Nightmare-5.2-RUI1.zip", base: "Bootleggers OS v5.2 (Android 10)", priority: "Legacy custom framework sandbox" },
+                          { file: "RROS-Q-8.6.5-20240301-Nightmare-Unofficial.zip", base: "Resurrection Remix Q v8.6.5", priority: "Highly customizable UI fallback" },
+                          { file: "AOSP-Q-10-RMX2185-RUI1-VANILLA.zip", base: "AOSP Android 10 Vanilla", priority: "Minimalist base; eliminates carrier framework conflicts" },
+                        ].map((rom, i) => (
+                          <tr key={i} className="hover:bg-white/[0.01]">
+                            <td className="py-2.5 text-foreground font-semibold">{rom.file}</td>
+                            <td className="py-2.5 text-zinc-500">{rom.base}</td>
+                            <td className="py-2.5 text-accent/80 font-semibold text-right">{rom.priority}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               )}
