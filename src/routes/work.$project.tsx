@@ -2828,15 +2828,64 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
             <div className="space-y-6 mb-8 text-xs font-mono">
               <div className="p-5 rounded-xl bg-panel border border-zinc-900">
                 <span className="text-accent font-semibold tracking-wider block mb-2">PRIORITY 1: RESOLVE ROM INSTALLATION BLOCK</span>
-                <p className="text-dim leading-relaxed mb-3">
+                <p className="text-dim leading-relaxed mb-4">
                   Re-align system tables to permit custom zip installations. We are evaluating four distinct pathways:
                 </p>
-                <ul className="list-disc list-inside text-dim space-y-2 pl-2">
-                  <li><span className="text-foreground">Option A:</span> Invoke next-gen SP Flash Tool v6 directly against decrypted OFP packages to re-establish the partition bounds.</li>
-                  <li><span className="text-foreground">Option B:</span> Sideload Realme UI 1.0 (Android 10 base) debloated stock rom packages to match layout constraints.</li>
-                  <li><span className="text-foreground">Option C:</span> Execute <code>fastboot wipe super</code> and reconstruct logical containers from raw system.img templates.</li>
-                  <li><span className="text-foreground">Option D:</span> Reconcile dynamic partition metadata sizes by modifying the zip's internal <code>dynamic_partitions_op_list</code>.</li>
-                </ul>
+
+                <div className="space-y-4 mt-2">
+                  <div className="p-4 rounded bg-black/30 border border-zinc-900">
+                    <span className="text-foreground font-semibold text-xs block mb-1">Option A (Immediate Diagnostic): Audit Dynamic Partition Operations</span>
+                    <p className="text-dim text-[11px] leading-relaxed mb-2">
+                      Before flashing any other ROMs, we must examine the installation constraints in the ROM zip to identify potential size mismatches:
+                    </p>
+                    <StudyCodeBlock>{`# Read the dynamic partition operations script from the LineageOS zip
+$ cat ~/Documents/projects/CS/LinageOS/lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185/dynamic_partitions_op_list
+
+# Boot TWRP via BROM plstage, then query active mapping layout sizes
+~# adb shell "ls -la /dev/block/by-name/"
+~# adb shell "blockdev --getsize64 /dev/block/by-name/super"`}</StudyCodeBlock>
+                    <p className="text-dim text-[11px] leading-relaxed mt-2 font-sans">
+                      Compare the size output with the expected boundaries in <code>dynamic_partitions_op_list</code> to isolate metadata corruption from physical size limits.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded bg-black/30 border border-zinc-900">
+                    <span className="text-foreground font-semibold text-xs block mb-1">Option B: Flash Stack Firmware via SP Flash Tool v6</span>
+                    <p className="text-dim text-[11px] leading-relaxed mb-2">
+                      Use the next-gen SP Flash Tool v6 to write the complete Android 10 stock baseline, overwriting existing corrupted table headers:
+                    </p>
+                    <StudyCodeBlock>{`# Launch SP Flash Tool v6 from host workspace
+$ cd ~/Documents/projects/CS/Realme_C15/SP_Flash_Tool_v6.2228_Linux
+$ chmod +x SPFlashToolV6.sh && sudo ./SPFlashToolV6.sh`}</StudyCodeBlock>
+                    <p className="text-dim text-[11px] leading-relaxed mt-2 font-sans">
+                      Load the scatter configuration file at <code>~/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/MT6765_Android_scatter.txt</code>. If v6 bypasses the boundary check crashes, write all partitions to restore a clean state.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded bg-black/30 border border-zinc-900">
+                    <span className="text-foreground font-semibold text-xs block mb-1">Option C: Deploy Realme UI 1.0 (Android 10) Debloated Stock ROM</span>
+                    <p className="text-dim text-[11px] leading-relaxed mb-2 font-sans">
+                      Sideload <code>REALMEMEUI-DEBLOAT-RUI1-MTK.zip</code> from SourceForge, which is compiled directly for the RMX2180/RMX2185 partition structure:
+                    </p>
+                    <StudyCodeBlock>{`# Download the debloated ROM archive to LinageOS folder
+$ wget "https://master.dl.sourceforge.net/project/realme-c15/Android/10/REALMEMEUI-DEBLOAT-RUI1-MTK.zip?viasf=1" -O ~/Documents/projects/CS/LinageOS/REALMEMEUI-DEBLOAT-RUI1-MTK.zip`}</StudyCodeBlock>
+                  </div>
+
+                  <div className="p-4 rounded bg-black/30 border border-zinc-900">
+                    <span className="text-foreground font-semibold text-xs block mb-1">Option D: Check Fastboot Super Wipe Support</span>
+                    <p className="text-dim text-[11px] leading-relaxed mb-2">
+                      Query bootloader support for logical partition management and perform a fastboot wipe:
+                    </p>
+                    <StudyCodeBlock>{`# Reboot device to bootloader
+$ adb reboot bootloader
+
+# Check super partition metadata support
+$ fastboot getvar super-partition-name
+
+# Format super partition logical tables
+$ fastboot wipe super`}</StudyCodeBlock>
+                  </div>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -2873,6 +2922,20 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                     Verify the presence of May 2022 patches on the C.13 baseline. Cross-reference kernel symbol table mappings with commit <code>ec6af094ea28</code>.
                   </p>
                 </div>
+              </div>
+
+              <div className="p-5 rounded-xl bg-red-950/20 border border-red-900/40 text-red-200/90 font-sans">
+                <span className="text-red-400 font-semibold tracking-wider flex items-center gap-2 mb-3 text-xs font-mono uppercase">
+                  <AlertTriangle className="size-4 text-red-400" />
+                  CRITICAL DEFENSIVE SAFETY PRECAUTIONS (WHAT NOT TO DO)
+                </span>
+                <ul className="list-disc list-inside space-y-2 text-xs pl-1 text-red-200/70">
+                  <li><strong className="text-red-300">Do NOT reflash the preloader</strong> — Any signature or size mismatch on the stage-1 preloader partition will result in a permanent hardware brick.</li>
+                  <li><strong className="text-red-300">Do NOT attempt to lock the bootloader</strong> — Locking the bootloader with custom firmware installed triggers secure boot validation errors, leading to an unrecoverable hard brick.</li>
+                  <li><strong className="text-red-300">Do NOT sideload NetHunter before completing Setup Wizard</strong> — Sideloading Kali NetHunter before running the initial Android setup wizard will fail as <code>/data</code> user structures are not yet fully initialized.</li>
+                  <li><strong className="text-red-300">Do NOT flash extracted Android 11 (C.13) super.img</strong> — Retaining Android 11 system/vendor images conflicts with the Android 10 kernel layout and triggers Little Kernel panics.</li>
+                  <li><strong className="text-red-300">Do NOT treat "No space left on device" from dd as a failure</strong> — When flashing systems onto physical sectors, filling the block allocation completely triggers this message but indicates a 100% complete write.</li>
+                </ul>
               </div>
             </div>
 
