@@ -1766,8 +1766,38 @@ Updater process ended with ERROR: 1`}</StudyCodeBlock>
 # Query custom recovery configuration flags
 ~# cat /etc/twrp.flags
 # [Standard partitions listed, no 'super' entry present]`}</StudyCodeBlock>
-            <p className="text-dim text-sm leading-relaxed mb-6">
               This verified that while there was no partition block literally registered as "super" in <code>/proc/partitions</code>, the device indeed used a dynamic, logical structure utilizing <code>mmcblk0p42</code> as the physical super block. The root cause of the sideload error was a layout mismatch: the ROM's internal dynamic partition operation metadata (<code>dynamic_partitions_op_list</code>) could not reconcile with the existing partition tables currently mapped on the flash controller. This blocked standard zip installers from mounting the system/vendor nodes.
+            </p>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">AVB Partition Zeroing & Workstation-Side Boot Patching Attempts</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To isolate Verified Boot (AVB) from the partition mounting failures, we attempted to entirely zero out the boot validation signatures from the TWRP terminal shell using <code>dd</code>:
+            </p>
+            <StudyCodeBlock>{`# Zero out vbmeta validation signature block
+~# adb shell "dd if=/dev/zero of=/dev/block/by-name/vbmeta bs=4096"
+dd: /dev/block/by-name/vbmeta: write error: No space left on device
+
+# Zero out secondary vbmeta_system validation signature block
+~# adb shell "dd if=/dev/zero of=/dev/block/by-name/vbmeta_system bs=4096"
+dd: /dev/block/by-name/vbmeta_system: write error: No space left on device`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              (<em>Note: The "No space left on device" output is the expected confirmation that the partition boundaries were completely saturated with zeroed bytes.</em>) Although the partitions were fully zeroed, the device continued to boot loop in the Orange State.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Next, we extracted the ROM-specific <code>vbmeta.img</code> and <code>boot.img</code> directly from the LineageOS zip archive and flashed them via MTKClient on the workstation:
+            </p>
+            <StudyCodeBlock>{`# Flash ROM-signed vbmeta to match LineageOS integrity checks
+$ sudo $(which python3) mtk.py w vbmeta ~/Documents/projects/CS/LinageOS/lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185/vbmeta.img
+
+# Flash ROM-signed kernel boot stack
+$ sudo $(which python3) mtk.py w boot ~/Documents/projects/CS/LinageOS/lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185/boot.img`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              This verification bypassed the kernel verification signatures, but the sideload process still aborted at the system/vendor mapping stage with the exact same partition mapping error.
+            </p>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Alternative ROM Deployment: RealmeUI 2.0 Debloated NetHunter Base</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              We hypothesized that an Android 11 base matching the device's native stock configuration might contain compatible metadata parameters. We sourced <code>RealmeUI2_Debloat_v2.2_Sukisu_Mediatek_Nethunter+modules_RMX2185.zip</code> (a pre-debloated Realme UI 2.0 ROM containing custom MediaTek NetHunter kernel modules and a KernelSU root integration). However, executing the sideload on this package still yielded the same <code>update_dynamic_partitions</code> assertion failure. This confirmed that the dynamic metadata mismatch was persistent and required a full partition re-alignment using stock firmware assets.
             </p>
           </section>
 
