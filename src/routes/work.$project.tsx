@@ -1789,6 +1789,7 @@ Updater process ended with ERROR: 1`}</StudyCodeBlock>
 # Query custom recovery configuration flags
 ~# cat /etc/twrp.flags
 # [Standard partitions listed, no 'super' entry present]`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
               This verified that while there was no partition block literally registered as "super" in <code>/proc/partitions</code>, the device indeed used a dynamic, logical structure utilizing <code>mmcblk0p42</code> as the physical super block. The root cause of the sideload error was a layout mismatch: the ROM's internal dynamic partition operation metadata (<code>dynamic_partitions_op_list</code>) could not reconcile with the existing partition tables currently mapped on the flash controller. This blocked standard zip installers from mounting the system/vendor nodes.
             </p>
 
