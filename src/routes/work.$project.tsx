@@ -1429,8 +1429,117 @@ function RealmeNetHunterCaseStudy({
           </aside>
         </div>
 
+        {/* Device Specification & Research Context */}
+        <div className="grid md:grid-cols-2 gap-8 mb-24 p-8 rounded-2xl bg-zinc-950/40 border border-zinc-900 backdrop-blur-md">
+          <div>
+            <h3 className="text-sm font-serif text-foreground mb-4">Device & Hardware Profile</h3>
+            <table className="w-full text-xs font-mono text-dim">
+              <tbody>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Model</td>
+                  <td className="py-2.5 text-right">Realme C15 (RMX2180 / RMX2185 / RMX2189)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">SoC</td>
+                  <td className="py-2.5 text-right">MediaTek Helio G35 (MT6765G / MT6765)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">BROM HW Code / VID:PID</td>
+                  <td className="py-2.5 text-right">0707 | BROM: 0e8d:0003 | PL: 0e8d:20ff</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">SLA / DAA Security</td>
+                  <td className="py-2.5 text-right text-red-500 font-semibold">Enabled (Hardware-Enforced)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Partition Layout</td>
+                  <td className="py-2.5 text-right">EMMC (/dev/block/mmcblk0), Dynamic /super block 42 (seek=1)</td>
+                </tr>
+                <tr className="py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Hardware Anomalies</td>
+                  <td className="py-2.5 text-right text-accent">Volume Down Key Broken (relying on preloader crash exploit 0e8d:20ff fallback), Stock Recovery Touchscreen Inoperable</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h3 className="text-sm font-serif text-foreground mb-4">Firmware & Research Profile</h3>
+            <table className="w-full text-xs font-mono text-dim">
+              <tbody>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Firmware Target</td>
+                  <td className="py-2.5 text-right">RMX2180_11_C.13 Export variant (OFP Decrypted)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Android OS</td>
+                  <td className="py-2.5 text-right">Android 11 (Realme UI v2.0 / ColorOS v11)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Security Patch Level</td>
+                  <td className="py-2.5 text-right">2022-07-05 (Last EOL release)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Kernel Version</td>
+                  <td className="py-2.5 text-right">Linux 4.19.127+</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">EMMC / User Storage</td>
+                  <td className="py-2.5 text-right">64GB (boot1/boot2: 4MB, RPMB: 4MB/16MB)</td>
+                </tr>
+                <tr className="py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Research Objectives</td>
+                  <td className="py-2.5 text-right text-green-400 font-semibold">Kali NetHunter full build deployment (ksun-ten-full), CVE Exploitation (Binder UAF), Security Portfolio Auditing</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Long-form Content / Phases */}
         <div className="max-w-4xl mx-auto space-y-24">
+
+          {/* Research & CVE Targeting */}
+          <section>
+            <StudyPhaseLabel n="00" label="Vulnerability Targeting & Reconnaissance Planning" />
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Before commencing hardware-level interface manipulation, we analyzed the Helio G35 (MT6765) security landscape and mapped the vulnerable surface area. The target device was locked to the July 5, 2022 security patch level (End-of-Life), allowing us to target several high-impact CVEs.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Our initial security research roadmap targeted five primary vulnerabilities:
+            </p>
+            <div className="space-y-4 mb-8">
+              {[
+                {
+                  cve: "BROM DA Bypass",
+                  desc: "MediaTek Download Agent Authentication Bypass (kamakiri/amonet exploits) to bypass SLA/DAA hardware locks and secure raw partition r/w access."
+                },
+                {
+                  cve: "CVE-2022-20421",
+                  desc: "Binder Use-After-Free (UAF) in Android's Binder driver, enabling local privilege escalation (LPE) to root. Lacks the October 2022 patch."
+                },
+                {
+                  cve: "CVE-2020-0069",
+                  desc: "CMDQ Driver physical memory r/w exploit (MediaTek-su). Read-only analysis planned as Android 11 SELinux policies mitigate exploitation."
+                },
+                {
+                  cve: "CVE-2021-22600",
+                  desc: "Linux kernel packet socket UAF, allowing privilege escalation. Subject to verification of May 2022 kernel security alignments."
+                },
+                {
+                  cve: "Post-July 2022 CVEs",
+                  desc: "Auditing silicon-level weaknesses and memory validation errors that remained unpatched following EOL status."
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-4 p-4 rounded-lg bg-zinc-950/40 border border-zinc-900 font-mono text-xs">
+                  <div className="text-accent font-semibold w-36 shrink-0">{item.cve}</div>
+                  <div className="text-dim">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 rounded-lg bg-yellow-950/20 border border-yellow-900/40 text-xs text-yellow-200/90 leading-relaxed font-mono">
+              <span className="text-yellow-400 font-semibold">⚠️ Correction Note:</span> During the initial scoping phase, the BROM exploit was incorrectly cited as CVE-2022-26449 (an unrelated medium-severity MediaTek vulnerability from September 2022). This was corrected during research: the Download Agent authentication bypass does not have a single public CVE number and is instead referenced as the MediaTek BROM DA Bypass exploiting bootloader RAM patching via payload injection.
+            </div>
+          </section>
 
           {/* Phase 1 */}
           <section>
@@ -1438,22 +1547,105 @@ function RealmeNetHunterCaseStudy({
             <p className="text-dim text-sm leading-relaxed mb-6">
               MediaTek Secure Boot requires Download Agent (DA) signing (SLA/DAA checks) before raw write commands are accepted. We executed an MTK BROM exploit to patch memory registers, bypass authentication, and read/write raw sectors. Because the volume-down key was broken on the device, entering true BROM mode directly was difficult; MTKClient bypassed this by crashing the preloader execution state to force an exploit escalation fallback.
             </p>
-            <StudyCodeBlock>{`# BROM entry handshake
-$ sudo $(which python3) mtk.py da bypass
-...
-Device detected (0e8d:20ff) -> Crashed preloader signature
-SecMode: SBC+SDA+EXT
-Bypass successful.`}</StudyCodeBlock>
-            <StudyOutcome type="success" label="Bootloader Lock State Patched" detail="Read the seccfg partition, flipped lock_state at offset 0x0c to 0x03 (unlocked) and device_state at offset 0x10 to 0x01 (unlocked), recalculated the cryptosystem SHA256/SEJ signatures, and flashed it back to confirm orange state boot." />
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              First, we cloned the MTKClient repository, installed its dependencies system-wide, and set up the required Linux udev rules (updating older documentation paths to target the correct udev rule sources under <code>Setup/Linux/</code>):
+            </p>
+            <StudyCodeBlock>{`# Clone the MTKClient utility
+$ git clone https://github.com/bkerler/mtkclient
+$ cd mtkclient
+$ pip3 install -r requirements.txt --break-system-packages
+
+# Copy and install the udev rules
+$ sudo cp Setup/Linux/50-android.rules /etc/udev/rules.d/
+$ sudo cp Setup/Linux/51-edl.rules /etc/udev/rules.d/
+$ sudo cp Setup/Linux/52-mtk.rules /etc/udev/rules.d/
+
+# Reload rules and trigger udev subsystem
+$ sudo udevadm control --reload-rules
+$ sudo udevadm trigger
+
+# Verify udev rules installation
+$ ls /etc/udev/rules.d/ | grep -E "50-android|51-edl|52-mtk"
+50-android.rules
+51-edl.rules
+52-mtk.rules
+
+# Verify payload exists for MT6765 chip
+$ ls mtkclient/payloads/ | grep mt6765
+mt6765_payload.bin`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Before flashing or modifying any partition, we captured a complete forensic baseline of the stock device state to document its security patch and lock status:
+            </p>
+            <StudyCodeBlock>{`# Create baseline directory and capture properties
+$ mkdir -p ~/Documents/projects/CS/Realme_C15/research/baseline
+$ cd ~/Documents/projects/CS/Realme_C15/research/baseline
+$ adb shell getprop > device_props.txt
+
+# Verify target EOL parameters
+$ adb shell getprop ro.build.version.security_patch
+2022-07-05
+$ adb shell getprop ro.boot.flash.locked
+1`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To trigger the exploit, the device had to connect in Boot ROM (BROM) mode. Because the physical volume-down key was broken, we relied on the preloader fallback crash exploit. Connecting the powered-off device via USB automatically loaded it in Preloader mode (PID <code>0e8d:20ff</code>), allowing MTKClient to intercept the signature check and crash execution back into BROM mode (PID <code>0e8d:0003</code>):
+            </p>
+            <StudyCodeBlock>{`# Check USB devices
+$ lsusb | grep -iE "mediatek|oppo|realme|0e8d|22d9"
+Bus 001 Device 018: ID 22d9:20ff OPPO Electronics Corp. (Preloader Mode)`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Then, we read the lock configuration partition (<code>seccfg</code>) to capture the pre-unlock state:
+            </p>
+            <StudyCodeBlock>{`# Dump lock state partition (seccfg)
+$ sudo $(which python3) mtk.py r seccfg ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin
+
+# Convert to hex structure for inspection
+$ xxd ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin > ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt
+$ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt | head -n 4
+00000000: 4d4d 4d4d 0400 0000 3c00 0000 0100 0000  MMMM....<.......
+00000010: 0000 0000 0000 0000 4545 4545 a48a c4ca  ........EEEE....`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Note the lock flag <code>01000000</code> at offset <code>0x0c</code> (indicating LOCKED). Next, we dispatched the DA bypass unlock command:
+            </p>
+            <StudyCodeBlock>{`# Run the MTK DA seccfg unlock command
+$ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To verify, we dumped the partition again and generated a hex diff:
+            </p>
+            <StudyCodeBlock>{`# Dump post-unlock partition and diff
+$ sudo $(which python3) mtk.py r seccfg ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_AFTER.bin
+$ xxd ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_AFTER.bin > ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_AFTER.txt
+$ diff ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_AFTER.txt
+1,4c1,4
+< 00000000: 4d4d 4d4d 0400 0000 3c00 0000 0100 0000  MMMM....<.......
+< 00000010: 0000 0000 0000 0000 4545 4545 a48a c4ca  ........EEEE....
+---
+> 00000000: 4d4d 4d4d 0400 0000 3c00 0000 0300 0000  MMMM....<.......
+> 00000010: 0100 0000 0000 0000 4545 4545 7ae1 90bd  ........EEEEz...`}</StudyCodeBlock>
+            <StudyOutcome type="success" label="Bootloader Lock State Patched" detail="Offset 0x0c was successfully flipped from 01 (LOCKED) to 03 (UNLOCKED), and offset 0x10 was changed to 01 (UNLOCKED), triggering a persistent unlocked state check in fastboot oem device-info." />
           </section>
 
           {/* Phase 2 */}
           <section>
-            <StudyPhaseLabel n="02" label="Stock Firmware Decryption" />
+            <StudyPhaseLabel n="02" label="Stock Firmware Decryption & CDN Sourcing" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To obtain structural partitions and recover from boot loop locks, we fetched stock firmware directly from the official Realme CDN. The firmware was packaged inside an encrypted Oppo/Realme OFP file container. We utilized Python decryption tools to extract raw bootloader, kernel, and system partition structures, mapping them to the MT6765 scatter layout.
+              To obtain structural partitions and recover from boot loop locks, we required the official stock firmware. To ensure supply-chain integrity and avoid tampered images, we rejected third-party repositories like <code>azrom.net</code> and traced the firmware back to the official Realme CDN at <code>rms01.realme.net</code>.
             </p>
-            <StudyOutcome type="success" label="Firmware Decapsulated" detail="Successfully extracted bootloader stacks (preloader, lk, tee, scp) and dynamic scatter records from RMX2180export_11_C.13_2022070513370000.ofp." />
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              During the initial firmware download, we corrected a regional mismatch: the Russian variant (<code>RMX2180export_11_C.13_2022070513400000</code>) was initially selected, but we corrected this to the Indian variant (<code>RMX2180export_11_C.13_2022070513370000</code>) to match the device's baseband and telephony configurations. The firmware was packaged inside an encrypted Oppo/Realme OFP file container.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              We cloned the <code>oppo_decrypt</code> utility and executed the decryption process on the target OFP containers to extract raw images:
+            </p>
+            <StudyCodeBlock>{`# Clone and initialize decryption utility
+$ git clone https://github.com/bkerler/oppo_decrypt.git
+$ cd oppo_decrypt && pip install -r requirements.txt
+
+# Decrypt Android 11 C.13 Stock OFP Firmware package
+$ python3 ofp_mtk_decrypt.py "../MTKClient BROM Exploit/RMX2180export_11_C.13_2022070513370000/RMX2180export_11_C.13_2022070513370000.ofp" ./extracted
+
+# Decrypt Android 10 A.85 Legacy OFP Firmware package (used for downgrades)
+$ python3 ofp_mtk_decrypt.py "../rmx2180_android10/RMX2180_11_A.85_210205_4f3d4a31/RMX2185_11_A.85_210205_4f3d4a31.ofp" ./android10_extracted`}</StudyCodeBlock>
+            <StudyOutcome type="success" label="Firmware Decapsulated" detail="Successfully extracted bootloader stacks (preloader, lk, tee, scp), recovery, boot, super, vbmeta, and dynamic scatter records from the encrypted OFP container formats." />
           </section>
 
           {/* Phase 3 */}
