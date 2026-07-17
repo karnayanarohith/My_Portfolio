@@ -1829,24 +1829,84 @@ $ python3 ofp_mtk_decrypt.py "../rmx2180_android10/RMX2180_11_A.85_210205_4f3d4a
           <section>
             <StudyPhaseLabel n="03" label="Direct Block Injection (TWRP Sideload Bypass)" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Due to layout mismatches between Android 10 LineageOS packages and Android 11 firmware, TWRP's updater scripts failed with device-mapper logical errors on the ~7GB physical `super` block (`/dev/block/mmcblk0p42`). Sideloading failed consistently.
+              Despite having decrypted stock partition assets, standard updater scripts inside custom ROMs like LineageOS 17.1 and <code>crDroid-10.0-v6.27</code> failed consistently. The zip installers threw device-mapper logical errors on the ~7GB physical <code>super</code> block container (<code>/dev/block/mmcblk0p42</code>) because the incoming ROM layout metadata could not align with the existing partition tables.
             </p>
+            
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Stock Android 10 Partition Reflashing Alignment Attempt</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              We bypassed recovery restrictions by converting system dat blocks into a raw unsparsed image, push-storing it, and injecting it directly via block-level terminal writes with a 1MB offset to preserve metadata structures:
+              To enforce a clean, native partition layout, we attempted to align the partition boundaries by flashing the stock Android 10 (A.85 base) system images directly via MTKClient on the workstation:
             </p>
-            <StudyCodeBlock>{`# Decompress and assemble the system image on the workstation
-brotli -d system.new.dat.br
-python3 sdat2img.py system.transfer.list system.new.dat system.img
+            <StudyCodeBlock>{`# Flash Android 10 stock boot partition
+$ sudo $(which python3) mtk.py w boot /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/boot.img
 
-# Push and execute direct offset write to physical block 42
-adb push system.img /data/local/tmp/system.img
-adb shell "dd if=/data/local/tmp/system.img of=/dev/block/mmcblk0p42 bs=1048576 seek=1 conv=notrunc"
+# Flash Android 10 stock recovery partition
+$ sudo $(which python3) mtk.py w recovery /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/recovery.img
 
-# Verification: Bind loop7 to the offset sector and verify ext4 magic bytes
-adb shell "losetup -o 1048576 /dev/block/loop7 /dev/block/mmcblk0p42"
-adb shell "mount -t ext4 /dev/block/loop7 /mnt/system"
-adb shell "file /dev/block/loop7" -> Magic verified`}</StudyCodeBlock>
-            <StudyOutcome type="success" label="Offset System Injection Successful" detail="The Android 10 LineageOS system block was successfully loaded onto the physical partition, bypassing recovery installer checks." />
+# Flash Android 10 stock vbmeta partition
+$ sudo $(which python3) mtk.py w vbmeta /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/vbmeta.img
+
+# Flash Android 10 stock dtbo partition
+$ sudo $(which python3) mtk.py w dtbo /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/dtbo.img
+
+# Flash large Android 10 stock super partition (~6GB container)
+$ sudo $(which python3) mtk.py w super /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super.img`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The flashing process succeeded (with the 6GB super partition writing at 6.11 MB/s over several minutes). However, the device booted into the stock Realme Recovery with <strong>no touch screen response</strong>, as touch drivers were absent in the stock recovery image. Furthermore, ADB commands failed with <code>device unauthorized</code> because the security authorization keys had been wiped along with the userdata block, leaving no interface to reboot the device.
+            </p>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Battery-Drain Escapes & Userdata Sanitization</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Trapped in the unresponsive recovery interface with no hardware key reboot alternatives, we had to allow the device's 6000mAh battery to drain completely. Once the device powered off, we connected it to the workstation and dispatched a userdata block wipe command:
+            </p>
+            <StudyCodeBlock>{`# Format the userdata partition block
+$ sudo $(which python3) mtk.py e userdata`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              With userdata cleared, we reflashed our custom TWRP image to the recovery partition, reset the MTKClient bus context, and booted back into the custom recovery environment using the preloader staging workaround:
+            </p>
+            <StudyCodeBlock>{`# Reflash TWRP custom recovery
+$ sudo $(which python3) mtk.py w recovery ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img
+
+# Reset MTK Client bus context
+$ sudo $(which python3) mtk.py reset
+
+# Stage preloader and boot TWRP
+$ sudo $(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img`}</StudyCodeBlock>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Direct Physical Offset Block Injection</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Once back in TWRP, sideloading still failed because of partition sizing rules. To resolve this, we first zeroed out the entire <code>super</code> partition block structure from the ADB shell to destroy any incompatible metadata headers:
+            </p>
+            <StudyCodeBlock>{`# Zero out the super partition to clear layout metadata
+~# adb shell "dd if=/dev/zero of=/dev/block/by-name/super bs=4096"`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Next, we decompressed the LineageOS system sparse block data and compiled it into a raw unsparsed image on the workstation:
+            </p>
+            <StudyCodeBlock>{`# Decompress the system transfer block
+$ brotli -d system.new.dat.br
+
+# Compile sparse data into unsparsed system image
+$ python3 sdat2img.py system.transfer.list system.new.dat system.img`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Instead of relying on installer scripts, we pushed the compiled <code>system.img</code> directly to the device's temporary folder and executed a direct offset block-level write. We sought a 1MB offset (<code>seek=1 bs=1048576</code>) to write past the initial dynamic partition metadata headers, preserving the logical structures of the container:
+            </p>
+            <StudyCodeBlock>{`# Push the raw system payload
+$ adb push system.img /data/local/tmp/system.img
+
+# Inject unsparsed payload directly to super block with a 1MB offset
+$ adb shell "dd if=/data/local/tmp/system.img of=/dev/block/mmcblk0p42 bs=1048576 seek=1 conv=notrunc"`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To verify the system integrity post-injection, we bound a loop device to the offset location and successfully mounted the partition as ext4, confirming structural validity:
+            </p>
+            <StudyCodeBlock>{`# Bind loop7 to the offset sector
+~# adb shell "losetup -o 1048576 /dev/block/loop7 /dev/block/mmcblk0p42"
+
+# Mount loop device to local path
+~# adb shell "mount -t ext4 /dev/block/loop7 /mnt/system"
+
+# Verify filesystem magic bytes
+~# adb shell "file /dev/block/loop7"
+# [Output: Ext4 filesystem data verified]`}</StudyCodeBlock>
+            <StudyOutcome type="success" label="Offset System Injection Successful" detail="The Android 10 LineageOS system block was successfully loaded onto the physical partition, bypassing recovery installer checks and verifying ext4 magic bytes." />
           </section>
 
           {/* Phase 4 */}
