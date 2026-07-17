@@ -1872,6 +1872,21 @@ $ sudo $(which python3) mtk.py reset
 # Stage preloader and boot TWRP
 $ sudo $(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img`}</StudyCodeBlock>
 
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Kernel Command Line Auditing</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To verify if dm-verity checks were still actively enforcing partition integrity at the kernel level, we audited the active boot parameters from the recovery shell:
+            </p>
+            <StudyCodeBlock>{`# Retrieve active kernel command line parameters
+$ adb shell "cat /proc/cmdline"
+androidboot.vbmeta.device_state=unlocked
+androidboot.veritymode=eio
+androidboot.veritymode.managed=yes
+androidboot.verifiedbootstate=orange`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              This exposed a critical bootloader parameter: <code>androidboot.veritymode=eio</code> (Error Ignore Mode). This indicates that the preloader/LK detects verification failures but permits booting to continue. Because this parameter is dynamically initialized by the lower bootloader stacks, zeroing out <code>vbmeta</code> signatures alone was insufficient to clear the verification flags.
+            </p>
+
             <h4 className="text-white font-medium text-sm mb-3 mt-6">Direct Physical Offset Block Injection</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
               Once back in TWRP, sideloading still failed because of partition sizing rules. To resolve this, we first zeroed out the entire <code>super</code> partition block structure from the ADB shell to destroy any incompatible metadata headers:
