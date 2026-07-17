@@ -1610,7 +1610,11 @@ Bus 001 Device 032: ID 0e8d:0003 MediaTek Inc. MT6227 phone`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
               To read the lock configuration partition (<code>seccfg</code>) and capture the pre-unlock state, we encountered a Python environment issue. Running <code>sudo python3 mtk.py</code> threw a <code>ModuleNotFoundError: No module named 'Cryptodome'</code> because <code>sudo</code> defaults to system Python, whereas the dependencies were installed in the active Conda environment. We resolved this environment conflict by calling <code>sudo $(which python3)</code> to pass the Conda binary context through sudo:
             </p>
-            <StudyCodeBlock>{`# Dump lock state partition (seccfg)
+            <StudyCodeBlock>{`# Create research directory for security configuration files and navigate to mtkclient
+$ mkdir -p ~/Documents/projects/CS/Realme_C15/research/seccfg
+$ cd ~/Documents/projects/CS/Realme_C15/MTKClient/mtkclient
+
+# Dump lock state partition (seccfg)
 $ sudo $(which python3) mtk.py r seccfg ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin
 
 # Convert to hex structure for inspection
