@@ -1579,19 +1579,34 @@ mt6765_payload.bin`}</StudyCodeBlock>
             <StudyCodeBlock>{`# Create baseline directory and capture properties
 $ mkdir -p ~/Documents/projects/CS/Realme_C15/research/baseline
 $ cd ~/Documents/projects/CS/Realme_C15/research/baseline
-$ adb shell getprop > device_props.txt
 
-# Verify target EOL parameters
-$ adb shell getprop ro.build.version.security_patch
-2022-07-05
-$ adb shell getprop ro.boot.flash.locked
-1`}</StudyCodeBlock>
+# Execute full baseline property audit script
+$ {
+  echo "=== BASELINE CAPTURE ==="
+  echo "Date: $(date)"
+  echo ""
+  echo "=== Security Patch ==="
+  adb shell getprop ro.build.version.security_patch
+  echo ""
+  echo "=== Build Fingerprint ==="
+  adb shell getprop ro.build.fingerprint
+  echo ""
+  echo "=== Flash Locked State ==="
+  adb shell getprop ro.boot.flash.locked
+  echo ""
+  echo "=== Kernel Version ==="
+  adb shell cat /proc/version
+} > ~/Documents/projects/CS/Realme_C15/research/baseline/baseline_log.txt`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To trigger the exploit, the device had to connect in Boot ROM (BROM) mode. Because the physical volume-down key was broken, we relied on the preloader fallback crash exploit. Connecting the powered-off device via USB automatically loaded it in Preloader mode (PID <code>0e8d:20ff</code>), allowing MTKClient to intercept the signature check and crash execution back into BROM mode (PID <code>0e8d:0003</code>):
+              To trigger the exploit, the device had to connect in Boot ROM (BROM) mode. Because the physical volume-down key was broken, we relied on the preloader fallback crash exploit. Connecting the powered-off device via USB automatically loaded it in Preloader mode (PID <code>0e8d:20ff</code>), allowing MTKClient to intercept the signature check, crash execution with a <code>DAA_SIG_VERIFY_FAILED (0x7024)</code> error, and force the device to re-enumerate in true BROM mode (PID <code>0e8d:0003</code>):
             </p>
-            <StudyCodeBlock>{`# Check USB devices
+            <StudyCodeBlock>{`# Check USB devices (Preloader Mode)
 $ lsusb | grep -iE "mediatek|oppo|realme|0e8d|22d9"
-Bus 001 Device 018: ID 22d9:20ff OPPO Electronics Corp. (Preloader Mode)`}</StudyCodeBlock>
+Bus 001 Device 024: ID 0e8d:20ff MediaTek Inc. RMX2180
+
+# Check USB devices after MTKClient preloader crash (True BROM Mode)
+$ lsusb | grep -iE "mediatek|oppo|realme|0e8d|22d9"
+Bus 001 Device 032: ID 0e8d:0003 MediaTek Inc. MT6227 phone`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
               Then, we read the lock configuration partition (<code>seccfg</code>) to capture the pre-unlock state:
             </p>
