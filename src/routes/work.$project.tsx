@@ -2397,6 +2397,97 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 </div>
               )}
             </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Forensic Investigation: Diagnostic Iteration & Debugging Log</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Our debugging lifecycle traversed 8 consecutive diagnostic attempts to isolate the partition verification rules and root out the boot conflicts:
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-8 text-xs font-mono">
+              {[
+                {
+                  id: "01",
+                  title: "Orange State Warning",
+                  hypothesis: "Orange warning screen blocks booting.",
+                  experiment: "Wait out the 5-second BROM escalation timer.",
+                  result: "Bootloader warning completes; loop repeats.",
+                  conclusion: "Benign bootloader warning; loop is triggered at a lower stack level."
+                },
+                {
+                  id: "02",
+                  title: "vbmeta Blanking",
+                  hypothesis: "Zeroing the vbmeta block bypasses Android Verified Boot checks.",
+                  experiment: "Write a 4KB blank image (dd if=/dev/zero bs=4096 count=1).",
+                  result: "Loop repeats, but dm-verity warning screen changes to recovery.",
+                  conclusion: "AVB enforcement state changed, but partition sizing mismatches persist."
+                },
+                {
+                  id: "03",
+                  title: "cmdline Auditing",
+                  hypothesis: "Active kernel command-line variables report the boot blocker.",
+                  experiment: "Examine active system runtime log via adb shell cat /proc/cmdline.",
+                  result: "Discovered androidboot.veritymode=eio active.",
+                  conclusion: "dm-verity failure forces an automatic wipe loop back to recovery."
+                },
+                {
+                  id: "04",
+                  title: "Dynamic Mappings",
+                  hypothesis: "Logical system / vendor structure creates script failures.",
+                  experiment: "Inspect /proc/partitions and mount flag targets in recovery.fstab.",
+                  result: "Verified logical mappings within physical container mmcblk0p42.",
+                  conclusion: "ROM installers fail because dynamic_partitions_op_list conflicts with stock tables."
+                },
+                {
+                  id: "05",
+                  title: "Super Partition Zeroing",
+                  hypothesis: "Wiping metadata block structures allows installers to generate new schemas.",
+                  experiment: "Run dd if=/dev/zero of=/dev/block/by-name/super bs=4096.",
+                  result: "Zeroing completes; zip installers still abort.",
+                  conclusion: "Clearing blocks fails to fix installer script logic. Manual table write is needed."
+                },
+                {
+                  id: "06",
+                  title: "Stock Recovery Downgrade",
+                  hypothesis: "Restoring Android 10 stock system/recovery images re-establishes the environment.",
+                  experiment: "Flash decrypted stock Android 10 recovery image.",
+                  result: "Flashed files boot successfully, but touchscreen control is missing.",
+                  conclusion: "Stock recovery is unusable without key buttons. TWRP custom recovery is required."
+                },
+                {
+                  id: "07",
+                  title: "Target ROM vbmeta",
+                  hypothesis: "Matching LineageOS boot image with its built-in vbmeta allows boot.",
+                  experiment: "Flash LineageOS boot.img + vbmeta.img and sideload ROM.",
+                  result: "Aborts immediately with partition layout error.",
+                  conclusion: "The installer aborts before writing block payloads, proving a table layout conflict."
+                },
+                {
+                  id: "08",
+                  title: "SP Flash Tool Auditing",
+                  hypothesis: "Flasher toolchain can flash raw OFP/scatter packages to override tables.",
+                  experiment: "Load scatter configuration under SP Flash Tool v5.1836.",
+                  result: "Aborts with boundary check error and missing libpng12.so.0 shared libraries.",
+                  conclusion: "Toolchain version mismatch; MTKClient BROM injection is the correct path."
+                }
+              ].map((d) => (
+                <div key={d.id} className="p-5 rounded-xl bg-panel border border-zinc-900 hover:border-zinc-800 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] text-accent font-semibold tracking-wider font-mono">ATTEMPT {d.id}</span>
+                      <span className="text-foreground font-semibold font-sans">{d.title}</span>
+                    </div>
+                    <div className="space-y-2 text-[11px] leading-relaxed">
+                      <p><span className="text-zinc-500">Hypothesis:</span> {d.hypothesis}</p>
+                      <p><span className="text-zinc-500">Experiment:</span> <code className="bg-black/40 px-1.5 py-0.5 rounded text-zinc-300 text-[10px]">{d.experiment}</code></p>
+                      <p><span className="text-zinc-500">Result:</span> {d.result}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-zinc-900/60 text-[11px] leading-relaxed text-accent/80 font-sans">
+                    <span className="text-zinc-500 font-mono text-[11px]">Conclusion:</span> {d.conclusion}
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         </div>
 
