@@ -1918,6 +1918,14 @@ androidboot.verifiedbootstate=orange`}</StudyCodeBlock>
             <StudyCodeBlock>{`# Zero out the super partition to clear layout metadata
 ~# adb shell "dd if=/dev/zero of=/dev/block/by-name/super bs=4096"`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
+              To re-establish the baseline offsets of the dynamic sub-partitions, we expanded the stock Android 10 sparsed <code>super.img</code> into a raw ext4 container, and flashed the raw tables onto the device via ADB:
+            </p>
+            <StudyCodeBlock>{`# Decompress the stock super sparse partition layout to raw image
+$ simg2img /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super.img /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super_unsparsed.img
+
+# Write the raw super block table onto the physical block index
+$ cat /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super_unsparsed.img | adb shell "dd of=/dev/block/by-name/super bs=1048576"`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
               Next, we decompressed the LineageOS system sparse block data and compiled it into a raw unsparsed image on the workstation:
             </p>
             <StudyCodeBlock>{`# Decompress the system transfer block
@@ -1952,43 +1960,51 @@ $ adb shell "dd if=/data/local/tmp/system.img of=/dev/block/mmcblk0p42 bs=104857
           <section>
             <StudyPhaseLabel n="04" label="Bootloader Version Alignment Downgrade" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              While the system image was correctly injected, booting the custom kernel over the Android 11 stock bootloader stack caused a kernel panic inside the little kernel (lk) module: `ERROR: CMDLINE OVERFLOW`. 
+              Although the raw system blocks were successfully injected, booting the system with the custom LineageOS 17.1 kernel was blocked by a bootloader stack conflict. The stock Android 11 Little Kernel (<code>lk</code>) was strictly incompatible with Android 10-based LineageOS kernel command-line variables, throwing a crash loop: <code>ERROR: CMDLINE OVERFLOW</code>.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              We resolved this mismatch by downgrading the lower-level firmware stack (lk, tee, scp, sspm, dtbo) to stock Android 10 (A.85 firmware base) via BROM mode, matching the LineageOS custom kernel base and enabling a clean boot:
+              To align the bootloader stack, we downgraded the lower-level firmware components (pre-loaders, secure monitor, coprocessors, and device trees) to the stock Android 10 (A.85 firmware base) baseline via BROM write operations:
             </p>
-            <StudyCodeBlock>{`# Flash Android 10 bootloader stack via MTKClient
-python3 mtk.py w lk lk.img
-python3 mtk.py w tee1 tee.img
-python3 mtk.py w scp1 scp.img
-python3 mtk.py w dtbo dtbo.img`}</StudyCodeBlock>
-            <StudyOutcome type="success" label="Bootloader Downgrade Complete" detail="Successfully resolved the command-line panic loop and booted LineageOS 17.1." />
+            <StudyCodeBlock>{`# Downgrade bootloader stack partitions via MTKClient to A.85 baseline
+$ sudo python3 mtk.py w boot,vbmeta,dtbo,md1img,spmfw,scp1,scp2,sspm_1,sspm_2,tee1,tee2,lk,lk2 /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              By replacing these firmware partitions with their Android 10 counterparts and disabling Verified Boot via a blanked <code>vbmeta.img</code>, we aligned the environment expectations of the custom ROM kernel. This successfully resolved the command-line overflow panic and allowed the device to boot into the LineageOS 17.1 setup wizard.
+            </p>
+            <StudyOutcome type="success" label="Bootloader Downgrade Complete" detail="Successfully resolved the command-line panic loop and booted into the LineageOS 17.1 setup wizard." />
           </section>
 
           {/* Phase 5 */}
           <section>
             <StudyPhaseLabel n="05" label="Magisk Root & NetHunter Deployment" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              With a stable Android 10 system booted, we patched the boot partition via Magisk to establish systemless administrative root controls. Once administrative permissions were secured, we sideloaded and compiled the 2.4GB Kali NetHunter package:
+              With a stable Android 10 system booted, we installed the Magisk Manager App (<code>Magisk-v30.7.apk</code>) to establish root controls. We copied the LineageOS <code>boot.img</code> to the device, patched it via the Magisk Manager interface, and pulled the resulting <code>magisk_patched.img</code> back to the workstation. We then flashed it either via BROM or using the TWRP terminal:
             </p>
-            <StudyCodeBlock>{`# Flash patched Magisk boot image
-python3 mtk.py w boot magisk_patched.img
+            <StudyCodeBlock>{`# Flash the Magisk-patched boot image (Workstation BROM option)
+$ sudo python3 mtk.py w boot magisk_patched.img
+
+# Alternative direct flash within recovery terminal
+$ adb shell "dd if=/sdcard/Download/magisk_patched.img of=/dev/block/by-name/boot"
 
 # Confirm root shell access
 $ adb shell su
 # id -> uid=0(root) gid=0(root)`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Once root privileges were secured and the first-boot Android setup wizard was completed to fully initialize the <code>/data</code> partition, we pushed and sideloaded the 2.4GB Kali NetHunter package (<code>kali-nethunter-2026.1-rmx2180-los-ksun-ten-full.zip</code>) using the Magisk Modules manager to mount the Kali Linux chroot environment and compile wireless injection drivers.
+            </p>
             <StudyOutcome type="success" label="Kali NetHunter Fully Booted" detail="NetHunter chroot packages compiled and activated successfully. Verified local root execution." />
           </section>
 
           {/* Phase 6 */}
           <section>
-            <StudyPhaseLabel n="06" label="BCB Sticky recovery Reset & Userdata Wipe" />
+            <StudyPhaseLabel n="06" label="BCB Sticky Recovery Reset & Userdata Wipe" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Unprocessed boot recovery flags in the Boot Control Block (BCB) lock devices in loopback stock recovery cycles. To prevent recovery-mode traps, we zeroed out the `para` and `boot_para` partition headers. As a final OPSEC safety measure, we performed a low-level BROM format on the `userdata` block to ensure all private identifiers were removed.
+              Unprocessed boot recovery flags in the Boot Control Block (BCB) lock the device into a persistent, loopback stock recovery boot cycle. To clear these persistent boot flags, we mapped the scatter partition offsets and erased the <code>para</code> and <code>boot_para</code> partition tables. Finally, we executed a low-level BROM format on the <code>userdata</code> block to wipe data remnants and personal identifiers:
             </p>
-            <StudyCodeBlock>{`# Reset recovery loop flags and perform sanitization
-python3 mtk.py e para,boot_para
-python3 mtk.py e userdata`}</StudyCodeBlock>
+            <StudyCodeBlock>{`# Clear persistent boot flags from Boot Control Block (BCB) via MTKClient
+$ sudo python3 mtk.py e para,boot_para
+
+# Format the userdata partition
+$ sudo python3 mtk.py e userdata`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Sanitization Complete" detail="Device freed from recovery loop flags and cleared of all personal data footprints." />
           </section>
 
