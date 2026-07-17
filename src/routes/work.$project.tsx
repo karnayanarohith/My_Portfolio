@@ -1969,6 +1969,41 @@ console=tty0 console=ttyS0,921600n1 vmalloc=400M slub_debug=OFZPU page_owner=on 
               <li><code>androidboot.bootreason=reboot_longkey</code> — confirms the recovery boot was forced via physical hardware keys (long power key press).</li>
             </ul>
 
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Forensic System Diagnostics: Boot loops, DM-Verity & Partition Mappings</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Our audit of the active kernel parameters and recovery configurations resolved the mechanics behind the persistent boot loops:
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">Verified Boot (AVB) & DM-Verity Mechanics</h5>
+                <p className="text-xs text-dim leading-relaxed mb-3">
+                  The Orange State warning screen itself is a benign bootloader behavior. The actual boot loop occurs because the Android Verified Boot (AVB) chain enforces system and vendor integrity:
+                </p>
+                <div className="bg-black/40 p-3 rounded font-mono text-[10px] text-zinc-300 border border-zinc-900 mb-3">
+                  vbmeta (Integrity Root) <br />
+                  ├── vbmeta_system (validates /system hash chain) <br />
+                  └── vbmeta_vendor (validates /vendor hash chain)
+                </div>
+                <p className="text-xs text-dim leading-relaxed">
+                  When <code>vbmeta</code> is zeroed out, the system loads with <code>androidboot.veritymode=eio</code> (Error-Ignore mode). In this state, any read operation returning an invalid hash blocks booting, throwing the kernel into an automatic wipe cycle that boots back to recovery.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-xl bg-panel border border-zinc-900">
+                <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">Logical Partition Mismatch & SELinux Profile</h5>
+                <p className="text-xs text-dim leading-relaxed mb-3">
+                  Since the C15 uses dynamic partitions, system and vendor filesystems are logical volumes inside the 7.1GB physical container <code>/dev/block/mmcblk0p42</code>. There is no block named "super" in <code>/proc/partitions</code>, though <code>recovery.fstab</code> mounts it using <code>logical,first_stage_mount</code> flags.
+                </p>
+                <p className="text-xs text-dim leading-relaxed mb-3">
+                  The ROM installers failed because their internal <code>dynamic_partitions_op_list</code> operations could not reconcile with the existing, mismatched stock partition metadata headers.
+                </p>
+                <p className="text-xs text-dim leading-relaxed">
+                  Additionally, the kernel command line parameters exposed <code>buildvariant=eng</code>, indicating an engineering/debug build. This forces SELinux into permissive mode, which is highly beneficial for local privilege escalation (LPE) and CVE exploitation audits.
+                </p>
+              </div>
+            </div>
+
             <h4 className="text-white font-medium text-sm mb-3 mt-6">Direct Physical Offset Block Injection</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
               Once back in TWRP, sideloading still failed because of partition sizing rules. To resolve this, we first zeroed out the entire <code>super</code> partition block structure from the ADB shell to destroy any incompatible metadata headers:
