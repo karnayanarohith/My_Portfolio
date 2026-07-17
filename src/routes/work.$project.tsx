@@ -1482,8 +1482,20 @@ function RealmeNetHunterCaseStudy({
                   <td className="py-2.5 text-right">2022-07-05 (Last EOL release)</td>
                 </tr>
                 <tr className="border-b border-zinc-900/60 py-2">
-                  <td className="py-2.5 text-left text-foreground font-semibold">Kernel Version</td>
+                  <td className="py-2.5 text-left text-foreground font-semibold">Stock Kernel Version</td>
                   <td className="py-2.5 text-right">Linux 4.19.127+</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">NetHunter Kernel</td>
+                  <td className="py-2.5 text-right text-accent">Linux 4.9.206-NetHunter (Packaged Custom Kernel)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">ROM Compilation Mode</td>
+                  <td className="py-2.5 text-right">Pre-built Binaries (LineageOS 17.1 / RMX2185 Third-Party ROM)</td>
+                </tr>
+                <tr className="border-b border-zinc-900/60 py-2">
+                  <td className="py-2.5 text-left text-foreground font-semibold">Shared Device Tree</td>
+                  <td className="py-2.5 text-right">android_device_realme_RMX2185 (Realme C11/C12/C15 Unified Profile)</td>
                 </tr>
                 <tr className="border-b border-zinc-900/60 py-2">
                   <td className="py-2.5 text-left text-foreground font-semibold">EMMC / User Storage</td>
