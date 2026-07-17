@@ -1614,21 +1614,27 @@ Bus 001 Device 032: ID 0e8d:0003 MediaTek Inc. MT6227 phone`}</StudyCodeBlock>
 $ mkdir -p ~/Documents/projects/CS/Realme_C15/research/seccfg
 $ cd ~/Documents/projects/CS/Realme_C15/MTKClient/mtkclient
 
-# Dump lock state partition (seccfg)
+# Querying partition throws environment error
+$ sudo python3 mtk.py r seccfg ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin
+ModuleNotFoundError: No module named 'Cryptodome'
+
+# Dump lock state partition (seccfg) passing the active Conda binary context
 $ sudo $(which python3) mtk.py r seccfg ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin
 
 # Convert to hex structure for inspection
 $ xxd ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin > ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt
-$ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt | head -n 4
+$ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt
 00000000: 4d4d 4d4d 0400 0000 3c00 0000 0100 0000  MMMM....<.......
-00000010: 0000 0000 0000 0000 4545 4545 a48a c4ca  ........EEEE....`}</StudyCodeBlock>
+00000010: 0000 0000 0000 0000 4545 4545 a48a c4ca  ........EEEE....
+00000020: 0c4c cd5b 96f1 bc7c ea80 dcb0 3489 4025  .L.[...|....4.@%
+00000030: 5096 d25c 4126 4c39 5ec8 4858 0000 0000  P..\A&L9^.HX....`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
               By analyzing the raw header, we verified the partition parameters: magic bytes <code>MMMM</code> (<code>4d4d4d4d</code>) at offset <code>0x00</code>, structure size <code>0x3c</code> (<code>3c000000</code>) at offset <code>0x08</code>, lock flag <code>01000000</code> at offset <code>0x0c</code> (LOCKED), and the end marker <code>EEEE</code> (<code>45454545</code>) at offset <code>0x18</code>. Next, we dispatched the DA bypass unlock command:
             </p>
             <StudyCodeBlock>{`# Run the MTK DA seccfg unlock command
 $ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt
-[MTK] Connecting to BROM...
-Preloader - Detected regular mode! CPU: MT6765/MT8768t(Helio P35/G35)
+Preloader - Detected regular mode !
+Preloader -     CPU:            MT6765/MT8768t(Helio P35/G35)
 Preloader -     HW version:     0x0
 Preloader -     WDT:            0x10007000
 Preloader -     Uart:           0x11002000
@@ -1639,24 +1645,20 @@ Preloader -     Var1:           0x25
 Preloader - Disabling Watchdog...
 Preloader - HW code:           0x766
 Preloader - Target config:     0xe5
-Preloader -     SBC enabled:    True
-Preloader -     SLA enabled:    False
-Preloader -     DAA enabled:    True
+Preloader -     SBC enabled:   True
+Preloader -     SLA enabled:   False
+Preloader -     DAA enabled:   True
 Preloader -     SWJTAG enabled: True
 Preloader -     Root cert required: False
-Preloader -     Mem read auth:  True
+Preloader -     Mem read auth: True
 Preloader -     Mem write auth: True
 Preloader -     Cmd 0xC8 blocked: True
-Mtk - We're not in bootrom, trying to crash da...
-Exploitation - Crashing da...
-Preloader - [LIB]: upload_data failed with error: DAA_SIG_VERIFY_FAILED (0x7024)
-Preloader - Status: Waiting for PreLoader VCOM, please reconnect mobile/iot device to brom mode
 Preloader - BROM mode detected.
-Preloader -     HW subcode:     0x8a00
-Preloader -     HW Ver:         0xca00
-Preloader -     SW Ver:         0x0
-Preloader - ME_ID:              [REDACTED_ME_ID]
-Preloader - SOC_ID:             [REDACTED_SOC_ID]
+Preloader -     HW subcode:    0x8a00
+Preloader -     HW Ver:        0xca00
+Preloader -     SW Ver:        0x0
+Preloader - ME_ID:             [REDACTED_ME_ID]
+Preloader - SOC_ID:            [REDACTED_SOC_ID]
 Preloader - [LIB]: Auth file is required. Use --auth option.
 PLTools - Loading payload from mt6765_payload.bin, 0x264 bytes
 Exploitation - Kamakiri Run
@@ -1668,7 +1670,6 @@ DAXFlash - Uploading xflash stage 1 from MTK_DA_V5.bin
 XFlashExt - Patching da1 ...
 Mtk - Patched "Patched loader msg" in preloader
 Mtk - Patched "hash_check" in preloader
-Mtk - Patched "Patched loader msg" in preloader
 Mtk - Patched "get_vfy_policy" in preloader
 XFlashExt - Patching da2 ...
 XFlashExt - Security check patched
@@ -1676,13 +1677,20 @@ XFlashExt - DA version anti-rollback patched
 XFlashExt - SBC patched to be disabled
 XFlashExt - Register read/write not allowed patched
 DAXFlash - Successfully uploaded stage 1, jumping ..
+Preloader - Jumping to 0x200000: ok.
 DAXFlash - Successfully received DA sync
+DAXFlash - Sending emi data ...
 DAXFlash - DRAM setup passed.
+DAXFlash - Uploading stage 2...
+DAXFlash - Boot to succeeded.
 DAXFlash - Successfully uploaded stage 2
 DAXFlash - DA SLA is disabled
-DAXFlash - EMMC FWVer: 0x0
-DAXFlash - EMMC ID: G1J9R8
-DAXFlash - EMMC CID: 13014e47314a3952381005a9c6be57ff
+DAXFlash - EMMC FWVer:     0x0
+DAXFlash - EMMC ID:        G1J9R8
+DAXFlash - EMMC CID:       13014e47314a3952381005a9c6be57ff
+DAXFlash - EMMC Boot1 Size: 0x400000
+DAXFlash - EMMC Boot2 Size: 0x400000
+DAXFlash - EMMC RPMB Size: 0x1000000
 DAXFlash - EMMC USER Size: 0xe8f800000
 DAXFlash - DA Extensions successfully added at 0x4fff0000
 Main - Handling da commands ...
@@ -1784,11 +1792,26 @@ Updater process ended with ERROR: 1`}</StudyCodeBlock>
 
 # Verify partition mount points and dynamic flags
 ~# cat /etc/recovery.fstab
-# Output: /system and /vendor configurations mapped to "logical,first_stage_mount" flags
+system    /system    ext4    ro    wait,,avb=vbmeta_system,logical,first_stage_mount
+vendor    /vendor    ext4    ro    wait,,avb,logical,first_stage_mount
+/dev/block/platform/bootdevice/by-name/userdata    /data    ext4    noatime,nosuid,nodev,noauto_da_alloc,discard,errors=panic,inlinecrypt    latemount,wait,check,quota,reservedsize=128M,formattable,resize,checkpoint=block,fileencryption=aes-256-xts:aes-256-cts:v1
+/dev/block/platform/bootdevice/by-name/para    /misc    emmc    defaults    defaults
 
 # Query custom recovery configuration flags
 ~# cat /etc/twrp.flags
-# [Standard partitions listed, no 'super' entry present]`}</StudyCodeBlock>
+/recovery    emmc    /dev/block/platform/bootdevice/by-name/recovery
+/boot        emmc    /dev/block/platform/bootdevice/by-name/boot
+/cache       ext4    /dev/block/platform/bootdevice/by-name/cache
+/dtbo        emmc    /dev/block/platform/bootdevice/by-name/dtbo         flags=backup
+/vbmeta      emmc    /dev/block/platform/bootdevice/by-name/vbmeta       flags=backup;flashimg
+/protect_f   emmc    /dev/block/platform/bootdevice/by-name/protect1     flags=backup
+/protect_s   emmc    /dev/block/platform/bootdevice/by-name/protect2     flags=backup
+/nvdata      emmc    /dev/block/platform/bootdevice/by-name/nvdata       flags=backup
+/nvcfg       emmc    /dev/block/platform/bootdevice/by-name/nvcfg        flags=backup
+/nvram       emmc    /dev/block/platform/bootdevice/by-name/nvram        flags=backup
+/proinfo     emmc    /dev/block/platform/bootdevice/by-name/proinfo      flags=backup
+/external_sd auto    /dev/block/mmcblk1p1    /dev/block/mmcblk1
+/usb-otg     auto    /dev/block/sda1         /dev/block/sda    flags=storage;wipeingui;removable`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
               This verified that while there was no partition block literally registered as "super" in <code>/proc/partitions</code>, the device indeed used a dynamic, logical structure utilizing <code>mmcblk0p42</code> as the physical super block. The root cause of the sideload error was a layout mismatch: the ROM's internal dynamic partition operation metadata (<code>dynamic_partitions_op_list</code>) could not reconcile with the existing partition tables currently mapped on the flash controller. This blocked standard zip installers from mounting the system/vendor nodes.
             </p>
@@ -1847,6 +1870,22 @@ $ python3 ofp_mtk_decrypt.py "../MTKClient BROM Exploit/RMX2180export_11_C.13_20
 # Decrypt Android 10 A.85 Legacy OFP Firmware package (used for downgrades)
 $ python3 ofp_mtk_decrypt.py "../rmx2180_android10/RMX2180_11_A.85_210205_4f3d4a31/RMX2185_11_A.85_210205_4f3d4a31.ofp" ./android10_extracted`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Firmware Decapsulated" detail="Successfully extracted bootloader stacks (preloader, lk, tee, scp), recovery, boot, super, vbmeta, and dynamic scatter records from the encrypted OFP container formats." />
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Toolchain Diversion: SP Flash Tool Compatibility Challenges</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Before committing to command-line sector writing via MTKClient, we evaluated standard GUI-based service utilities. We initially attempted to use SP Flash Tool (version <code>5.1836</code>) with the decrypted scatter profile to flash the raw partition tables. However, the tool aborted immediately with a boundary check error due to out-of-bounds address mappings for security configuration segments:
+            </p>
+            <StudyCodeBlock>{`Boundary Check Failed: rom_end_addr >= next rom begin_addr.
+ROM(cdt_engineering): rom_end_addr(0xfffffffffbe376448)!
+Next ROM(special_preload): m_begin_addr(0x000000030e00000)
+[HINT]: Please select a valid load or ask for help!`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              In addition, launching the SP Flash Tool on our workstation failed due to legacy library requirements on Linux, specifically throwing missing dependency errors for <code>libpng12</code>:
+            </p>
+            <StudyCodeBlock>{`/home/rohith/.../flash_tool: error while loading shared libraries: libpng12.so.0: cannot open shared object file: No such file or directory`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              We identified the updated SP Flash Tool v6 package location at <code>/home/rohith/Documents/projects/CS/Realme_C15/SP_Flash_Tool_v6.2228_Linux/SPFlashToolV6</code>, but decided to standardize all low-level commands around <code>MTKClient</code> as it bypassed desktop dependency errors and offered direct partition-level block accessibility.
+            </p>
           </section>
 
           {/* Phase 3 */}
@@ -1903,13 +1942,17 @@ $ sudo $(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realm
             </p>
             <StudyCodeBlock>{`# Retrieve active kernel command line parameters
 $ adb shell "cat /proc/cmdline"
-androidboot.vbmeta.device_state=unlocked
-androidboot.veritymode=eio
-androidboot.veritymode.managed=yes
-androidboot.verifiedbootstate=orange`}</StudyCodeBlock>
+console=tty0 console=ttyS0,921600n1 vmalloc=400M slub_debug=OFZPU page_owner=on swiotlb=noforce androidboot.hardware=mt6765 maxcpus=8 loop.max_part=7 firmware_class.path=/vendor/firmware has_battery_removed=1 androidboot.boot_devices=bootdevice,soc/11230000.mmc,11230000.mmc ramoops.mem_address=0x47c90000 ramoops.mem_size=0xe0000 ramoops.pmsg_size=0x10000 ramoops.console_size=0x40000 phx_rus_conf.main_on=1 phx_rus_conf.recovery_method=2 phx_rus_conf.kernel_time=240 phx_rus_conf.android_time=250 phenix.uefi_to_recovery=1 androidboot.sbootstate=on bootopt=64S3,32N2,64N2 buildvariant=eng root=/dev/ram androidboot.vbmeta.avb_version=1.1 androidboot.vbmeta.device_state=unlocked androidboot.veritymode=eio androidboot.veritymode.managed=yes androidboot.verifiedbootstate=orange oppo_boot_mode=0 simcardnum.doublesim=1 lcm=1-ilt9882n_truly_psc_hdp_dsi_vdo_lcm--1-fps=6014 is_lm3697=1 androidboot.meta_log_disable=0 androidboot.prjname=206A1 mtk_printk_ctrl.disable_uart=1 lcdgateic=SM5109 himax_bc=0x04 androidboot.serialno=[REDACTED] ogauge_auth=[REDACTED] androidboot.bootreason=reboot_longkey gpt=1 usb2jtag_mode=0 androidboot.dtb_idx=0 androidboot.dtbo_idx=0`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              This exposed a critical bootloader parameter: <code>androidboot.veritymode=eio</code> (Error Ignore Mode). This indicates that the preloader/LK detects verification failures but permits booting to continue. Because this parameter is dynamically initialized by the lower bootloader stacks, zeroing out <code>vbmeta</code> signatures alone was insufficient to clear the verification flags.
+              This auditing exposed several key dynamic configurations generated by the lower bootloader stacks:
             </p>
+            <ul className="list-disc list-inside text-dim text-sm space-y-2 mb-6">
+              <li><code>androidboot.vbmeta.device_state=unlocked</code> — confirms the bootloader is officially unlocked at the partition level.</li>
+              <li><code>androidboot.veritymode=eio</code> — dm-verity in Error Ignore mode (verity errors are logged, but boot sequence blocks are not halted).</li>
+              <li><code>androidboot.verifiedbootstate=orange</code> — standard verified boot warning flag indicating that custom/untrusted software is running.</li>
+              <li><code>androidboot.veritymode.managed=yes</code> — verity state reporting is managed dynamically by the Android framework.</li>
+              <li><code>androidboot.bootreason=reboot_longkey</code> — confirms the recovery boot was forced via physical hardware keys (long power key press).</li>
+            </ul>
 
             <h4 className="text-white font-medium text-sm mb-3 mt-6">Direct Physical Offset Block Injection</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
