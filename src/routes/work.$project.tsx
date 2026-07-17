@@ -2488,6 +2488,100 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 </div>
               ))}
             </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Architectural Analysis: Engineering Decision Ledger</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The following decision records detail the design trade-offs, alternative approaches, and security justifications resolved during this audit:
+            </p>
+
+            <div className="overflow-x-auto mb-8">
+              <table className="w-full text-xs font-mono text-dim text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-800 text-foreground">
+                    <th className="py-3 font-medium">Ref</th>
+                    <th className="py-3 font-medium">Design Question</th>
+                    <th className="py-3 font-medium">Chosen Strategy</th>
+                    <th className="py-3 font-medium">Alternative Rejected</th>
+                    <th className="py-3 font-medium">Trade-off & Technical Justification</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-900">
+                  {[
+                    {
+                      ref: "D01",
+                      question: "Service Flasher Toolchain",
+                      chosen: "MTKClient (BROM Exploit Interface)",
+                      alternative: "Oppo SP Flash Tool (v5 / v6)",
+                      desc: "SP Flash Tool v5 aborted with boundary address mapping check errors (cdt_engineering bounds mismatch) and lacks native compatibility with modern Linux host libraries (e.g. libpng12.so.0). MTKClient bypasses SLA/DAA security locks directly and handles raw partition access in Python.",
+                    },
+                    {
+                      ref: "D02",
+                      question: "Recovery Access Pathway",
+                      chosen: "BROM-level plstage Bootstrapping",
+                      alternative: "Physical Volume Combo Booting",
+                      desc: "Broken volume button hardware on the target made traditional recovery combination triggers inoperable. Sending TWRP directly via BROM using plstage bypasses key constraints and boots recovery from the workstation.",
+                    },
+                    {
+                      ref: "D03",
+                      question: "Firmware Target Baseline",
+                      chosen: "Android 10 Downgrade Baseline (A.85)",
+                      alternative: "Android 11 Stock Firmware (C.13)",
+                      desc: "NetHunter packages mandate an Android 10 base. While C.13 (Android 11) is the latest EOL release, A.85 OFP decrypted components provide the correct platform library layout for the NetHunter installer framework.",
+                    },
+                    {
+                      ref: "D04",
+                      question: "Custom Recovery Assembly",
+                      chosen: "Realme C15 RMX2185 TWRP Build",
+                      alternative: "Device-Specific RMX2180 Compile",
+                      desc: "Compile trees are shared because RMX2180, RMX2185, and RMX2189 differ only in RAM/ROM hardware variations. Booting RMX2185's TWRP verified total cross-compatibility.",
+                    },
+                    {
+                      ref: "D05",
+                      question: "Firmware Region Alignment",
+                      chosen: "India Export Package (RMX2180export)",
+                      alternative: "Russian Federation Mirror (RMX2183)",
+                      desc: "Firmware regions dictate carrier partitions and baseband modem parameters. russia variant mismatch would trigger radio telemetry conflicts and boot verification errors.",
+                    },
+                    {
+                      ref: "D06",
+                      question: "Preloader Flash Safeguard",
+                      chosen: "Retain Current Preloader Partition",
+                      alternative: "Flash Android 10 Preloader Payload",
+                      desc: "The preloader initializes DRAM parameters. Flashing a wrong or mismatching preloader breaks BROM communications, resulting in a permanent brick that cannot be recovered via software commands. Retaining the working C.13 preloader is safer.",
+                    },
+                    {
+                      ref: "D07",
+                      question: "Operational Security (OPSEC)",
+                      chosen: "Redact MEID, SOC_ID & Serials",
+                      alternative: "Expose Raw Exploit Logs",
+                      desc: "Modem MEIDs, silicon-level SOC hashes, and device serial keys allow hardware-level tracking and fingerprinting. Redacting these values does not affect the security study replication.",
+                    },
+                    {
+                      ref: "D08",
+                      question: "Research Publication",
+                      chosen: "Document Failures Publicly",
+                      alternative: "Showcase Successful Runs Only",
+                      desc: "In security research, documenting partition mismatches, command-line overflows, and recovery steps displays technical troubleshooting depth and code manipulation fluency, which is far more instructive than presenting a seamless run.",
+                    },
+                    {
+                      ref: "D09",
+                      question: "Mitigation Auditing Scoping",
+                      chosen: "Read-Only Analysis of CVE-2020-0069",
+                      alternative: "Attempt Exploit Execution on Android 11",
+                      desc: "Android 11 SELinux policies successfully isolate the /dev/mtk_cmdq driver, rendering media-su execution obsolete. Documenting the kernel-level isolation policies is of higher research value than running a blocked chain.",
+                    },
+                  ].map((d) => (
+                    <tr key={d.ref} className="hover:bg-white/[0.01] border-b border-zinc-900/40">
+                      <td className="py-3 pr-4 font-semibold text-accent">{d.ref}</td>
+                      <td className="py-3 pr-4 text-foreground font-semibold font-sans min-w-[140px]">{d.question}</td>
+                      <td className="py-3 pr-4 text-accent/80 min-w-[140px]">{d.chosen}</td>
+                      <td className="py-3 pr-4 text-zinc-500 min-w-[140px]">{d.alternative}</td>
+                      <td className="py-3 text-[11px] leading-relaxed font-sans min-w-[240px]">{d.desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         </div>
 
