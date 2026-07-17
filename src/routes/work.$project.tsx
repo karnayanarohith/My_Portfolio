@@ -1710,6 +1710,31 @@ $ sudo $(which python3) mtk.py w vbmeta_system ~/Documents/projects/CS/Realme_C1
             <p className="text-dim text-sm leading-relaxed mb-6">
               Flashed successfully, the device stopped bootlooping immediately and progressed to the stock Realme UI Recovery. However, attempting to boot the main system still triggered an Orange State loop, confirming that secondary partitions were still subject to cryptographic signature checks that required a custom recovery environment or dynamic partition remapping to fully bypass.
             </p>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Custom Recovery Deployment (TWRP) & Preloader Staging Workaround</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Stock Realme UI recovery lacks touchscreen support and does not support sideloading custom ROMs, necessitating a custom recovery (TWRP) installation. Our initial download target (<code>twrp-3.6.0-RMX218x.img</code>) threw a <code>404 Not Found</code> error. We subsequently located a compatible <code>TWRP-3.7.0_11-RMX2185-UI2-20221003.zip</code> build. Although designed for the <code>RMX2185</code>, it functions on the <code>RMX2180</code> due to identical hardware components, kernels, and partition tables within the RMX218x family. We extracted and flashed the recovery image:
+            </p>
+            <StudyCodeBlock>{`# Unzip TWRP recovery package
+$ unzip TWRP-3.7.0_11-RMX2185-UI2-20221003.zip -d twrp_extracted
+
+# Flash recovery image to recovery partition
+$ sudo $(which python3) mtk.py w recovery ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Although flashed, we could not access TWRP because a physical hardware key defect rendered the Volume Down button non-functional, preventing the standard bootloader key combo from working. To resolve this hardware blocker, we leveraged MTKClient's preloader staging (<code>plstage</code>) utility, sending the TWRP image directly through the BROM preloader payload register to bypass hardware keys entirely:
+            </p>
+            <StudyCodeBlock>{`# Boot TWRP recovery via preloader staging
+$ sudo $(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img
+Mtk - [LIB]: Preloader detected as shellcode, might fail to run.
+Mtk - [LIB]: Failed to patch preloader security
+Preloader - [LIB]: Checksum of upload doesn't match !
+Main - Sent preloader to 0x201000, length 0x6200000
+Preloader - Jumping to 0x201000: ok.
+Main - PL Jumped to daaddr 0x201000.
+Main - Keep pressed power button to boot.`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              While the binary mismatch warnings were displayed because TWRP is not formatted like a standard MTK preloader stage, they were non-fatal. Pressing and holding the power button immediately after jumping successfully forced the device to boot directly into a working TWRP custom recovery interface.
+            </p>
           </section>
 
           {/* Phase 2 */}
