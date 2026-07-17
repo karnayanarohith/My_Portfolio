@@ -2844,6 +2844,95 @@ $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</S
                 </div>
               ))}
             </div>
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-8 font-sans">Research Playbook & Reusable Command Reference</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The following command playbook documents the verification syntaxes, flash routines, and exploit wrappers utilized during this security research:
+            </p>
+
+            <div className="space-y-6 mb-8 text-xs font-mono">
+              <div>
+                <span className="text-xs font-mono text-accent uppercase tracking-wider block mb-2">1. Entering Preloader / BROM Interface</span>
+                <p className="text-dim text-xs leading-relaxed mb-2">
+                  No volume combinations are required. Power down the device and connect the USB interface to trigger auto-escalation:
+                </p>
+                <StudyCodeBlock>{`# Check host serial bus mappings
+$ lsusb | grep -i "mediatek"
+
+# Target device BROM handshake detection signature
+# ID 0e8d:20ff MediaTek Inc. MT6227 preloader (escalates automatically)`}</StudyCodeBlock>
+              </div>
+
+              <div>
+                <span className="text-xs font-mono text-accent uppercase tracking-wider block mb-2">2. Handshaking & Executing MTKClient Utility</span>
+                <p className="text-dim text-xs leading-relaxed mb-2">
+                  Execute Python commands inside the Miniconda <code>c15</code> environment utilizing root redirection:
+                </p>
+                <StudyCodeBlock>{`# Navigate to MTKClient folder structure
+$ cd ~/Documents/projects/CS/Realme_C15/MTKClient\\BROM\\ Exploit/mtkclient
+
+# Invoke MTKClient leveraging active Conda python interpreter
+$ sudo \$(which python3) mtk.py [command]`}</StudyCodeBlock>
+              </div>
+
+              <div>
+                <span className="text-xs font-mono text-accent uppercase tracking-wider block mb-2">3. Workstation-Assisted Custom Recovery Boot (TWRP)</span>
+                <p className="text-dim text-xs leading-relaxed mb-2">
+                  Trigger preloader stage loading to inject the TWRP image into target DRAM, bypassing broken volume hardware:
+                </p>
+                <StudyCodeBlock>{`$ sudo \$(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img
+
+# Wait for "Jumping to 0x201000: ok" then HOLD physical power button until UI initializes`}</StudyCodeBlock>
+              </div>
+
+              <div>
+                <span className="text-xs font-mono text-accent uppercase tracking-wider block mb-2">4. Raw Partition Sector Operations</span>
+                <p className="text-dim text-xs leading-relaxed mb-2">
+                  Read, write, or format raw system blocks using target-level offset parameters:
+                </p>
+                <StudyCodeBlock>{`# Dump arbitrary block sectors (e.g. seccfg, boot, super)
+$ sudo \$(which python3) mtk.py r [partition_name] /path/to/dump_output.bin
+
+# Flash image binaries to target partition structures
+$ sudo \$(which python3) mtk.py w [partition_name] /path/to/source_image.img
+
+# Erase sector indexes to clear userdata
+$ sudo \$(which python3) mtk.py e userdata
+
+# Trigger hardware-level warm-reset sequence
+$ sudo \$(which python3) mtk.py reset`}</StudyCodeBlock>
+              </div>
+
+              <div>
+                <span className="text-xs font-mono text-accent uppercase tracking-wider block mb-2">5. Cryptographic Hexadecimal Diffing</span>
+                <p className="text-dim text-xs leading-relaxed mb-2">
+                  Expose low-level sector variations using hexadecimal dumps:
+                </p>
+                <StudyCodeBlock>{`# Convert bin files to raw hex templates
+$ xxd seccfg_BEFORE.bin > hex_before.txt
+$ xxd seccfg_AFTER.bin > hex_after.txt
+
+# Produce unified diff mapping of byte-level changes
+$ diff -u hex_before.txt hex_after.txt > hex_diff.txt`}</StudyCodeBlock>
+              </div>
+
+              <div>
+                <span className="text-xs font-mono text-accent uppercase tracking-wider block mb-2">6. Recovery Sideload & Verification Routines</span>
+                <p className="text-dim text-xs leading-relaxed mb-2">
+                  Format filesystems and execute package sideload routines from TWRP shell:
+                </p>
+                <StudyCodeBlock>{`# Wipe system caches and format userdata structures
+$ adb shell "twrp wipe data"
+$ adb shell "twrp wipe cache"
+$ adb shell "twrp wipe dalvik"
+
+# Sideload custom OS packages or chroot zips
+$ adb sideload /path/to/rom_payload.zip
+
+# Write zero-blocks to destroy AVB verification flags
+$ adb shell "dd if=/dev/zero of=/dev/block/by-name/[vbmeta_partition] bs=4096"`}</StudyCodeBlock>
+              </div>
+            </div>
           </section>
         </div>
 
