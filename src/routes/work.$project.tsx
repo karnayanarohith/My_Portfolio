@@ -1608,7 +1608,7 @@ Bus 001 Device 024: ID 0e8d:20ff MediaTek Inc. RMX2180
 $ lsusb | grep -iE "mediatek|oppo|realme|0e8d|22d9"
 Bus 001 Device 032: ID 0e8d:0003 MediaTek Inc. MT6227 phone`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Then, we read the lock configuration partition (<code>seccfg</code>) to capture the pre-unlock state:
+              To read the lock configuration partition (<code>seccfg</code>) and capture the pre-unlock state, we encountered a Python environment issue. Running <code>sudo python3 mtk.py</code> threw a <code>ModuleNotFoundError: No module named 'Cryptodome'</code> because <code>sudo</code> defaults to system Python, whereas the dependencies were installed in the active Conda environment. We resolved this environment conflict by calling <code>sudo $(which python3)</code> to pass the Conda binary context through sudo:
             </p>
             <StudyCodeBlock>{`# Dump lock state partition (seccfg)
 $ sudo $(which python3) mtk.py r seccfg ~/Documents/projects/CS/Realme_C15/research/seccfg/seccfg_BEFORE.bin
@@ -1619,7 +1619,7 @@ $ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt | head -
 00000000: 4d4d 4d4d 0400 0000 3c00 0000 0100 0000  MMMM....<.......
 00000010: 0000 0000 0000 0000 4545 4545 a48a c4ca  ........EEEE....`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Note the lock flag <code>01000000</code> at offset <code>0x0c</code> (indicating LOCKED). Next, we dispatched the DA bypass unlock command:
+              By analyzing the raw header, we verified the partition parameters: magic bytes <code>MMMM</code> (<code>4d4d4d4d</code>) at offset <code>0x00</code>, structure size <code>0x3c</code> (<code>3c000000</code>) at offset <code>0x08</code>, lock flag <code>01000000</code> at offset <code>0x0c</code> (LOCKED), and the end marker <code>EEEE</code> (<code>45454545</code>) at offset <code>0x18</code>. Next, we dispatched the DA bypass unlock command:
             </p>
             <StudyCodeBlock>{`# Run the MTK DA seccfg unlock command
 $ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt`}</StudyCodeBlock>
