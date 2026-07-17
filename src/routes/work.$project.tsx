@@ -1683,6 +1683,33 @@ $ diff ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt ~/Docum
 > 00000020: 2217 d0f3 c61b 243a 6a83 fe4e 7378 9b34  ".....$:j..Nsx.4
 > 00000030: fcec 94be fd9c 3fca bea7 22e6 0000 0000  ......?...".....`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Bootloader Lock State Patched" detail="Offset 0x0c was flipped from 01 (LOCKED) to 03 (UNLOCKED), offset 0x10 was flipped from 00 (LOCKED) to 01 (UNLOCKED), and offsets 0x1c-0x3b were updated with the newly recalculated CRC. This successfully bypassed Android's bootloader lock verify routine." />
+
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">First Reboot Verification & Verified Boot (AVB) Failures</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              With the bootloader unlocked at the partition level, we rebooted the device to verify persistence. The device immediately encountered a boot loop characterized by the <code>DM-verity corruption warning</code> screen, followed by the standard MediaTek <code>Orange State</code> screen (<em>"Your device has been unlocked and cannot be trusted"</em>). After looping three times, the boot chain automatically wiped userdata and returned to the stock Realme recovery. This loop occurred because the stock Android 11 boot chain enforces Android Verified Boot (AVB), which rejects unsigned partitions.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              To bypass AVB verification, our first hypothesis was to replace the stock verification block with a zeroed/blank vbmeta block. We generated a 4KB blank block using <code>dd</code> and flashed it to the <code>vbmeta</code> partition:
+            </p>
+            <StudyCodeBlock>{`# Generate a blank 4KB vbmeta block
+$ dd if=/dev/zero bs=4096 count=1 of=~/Documents/projects/CS/Realme_C15/research/vbmeta_blank.img
+
+# Flash blank block to vbmeta
+$ sudo $(which python3) mtk.py w vbmeta ~/Documents/projects/CS/Realme_C15/research/vbmeta_blank.img`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              This attempt failed to resolve the loop because a 4KB block did not match the structural expectations of the physical partition boundary. Consequently, we targeted the secondary verification block <code>vbmeta_system</code>, dumping the original structure and blanking it using an 8MB padding block:
+            </p>
+            <StudyCodeBlock>{`# Dump stock secondary AVB metadata (vbmeta_system)
+$ sudo $(which python3) mtk.py r vbmeta_system ~/Documents/projects/CS/Realme_C15/research/vbmeta_system_stock.img
+
+# Create a 8MB zeroed image to match partition boundaries
+$ dd if=/dev/zero bs=8388608 count=1 of=~/Documents/projects/CS/Realme_C15/research/vbmeta_system_blank.img
+
+# Flash zeroed secondary AVB block
+$ sudo $(which python3) mtk.py w vbmeta_system ~/Documents/projects/CS/Realme_C15/research/vbmeta_system_blank.img`}</StudyCodeBlock>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Flashed successfully, the device stopped bootlooping immediately and progressed to the stock Realme UI Recovery. However, attempting to boot the main system still triggered an Orange State loop, confirming that secondary partitions were still subject to cryptographic signature checks that required a custom recovery environment or dynamic partition remapping to fully bypass.
+            </p>
           </section>
 
           {/* Phase 2 */}
