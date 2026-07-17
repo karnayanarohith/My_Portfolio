@@ -1675,10 +1675,14 @@ $ diff ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt ~/Docum
 1,4c1,4
 < 00000000: 4d4d 4d4d 0400 0000 3c00 0000 0100 0000  MMMM....<.......
 < 00000010: 0000 0000 0000 0000 4545 4545 a48a c4ca  ........EEEE....
+< 00000020: 0c4c cd5b 96f1 bc7c ea80 dcb0 3489 4025  .L.[...|....4.@%
+< 00000030: 5096 d25c 4126 4c39 5ec8 4858 0000 0000  P..\A&L9^.HX....
 ---
 > 00000000: 4d4d 4d4d 0400 0000 3c00 0000 0300 0000  MMMM....<.......
-> 00000010: 0100 0000 0000 0000 4545 4545 7ae1 90bd  ........EEEEz...`}</StudyCodeBlock>
-            <StudyOutcome type="success" label="Bootloader Lock State Patched" detail="Offset 0x0c was successfully flipped from 01 (LOCKED) to 03 (UNLOCKED), and offset 0x10 was changed to 01 (UNLOCKED), triggering a persistent unlocked state check in fastboot oem device-info." />
+> 00000010: 0100 0000 0000 0000 4545 4545 7ae1 90bd  ........EEEEz...
+> 00000020: 2217 d0f3 c61b 243a 6a83 fe4e 7378 9b34  ".....$:j..Nsx.4
+> 00000030: fcec 94be fd9c 3fca bea7 22e6 0000 0000  ......?...".....`}</StudyCodeBlock>
+            <StudyOutcome type="success" label="Bootloader Lock State Patched" detail="Offset 0x0c was flipped from 01 (LOCKED) to 03 (UNLOCKED), offset 0x10 was flipped from 00 (LOCKED) to 01 (UNLOCKED), and offsets 0x1c-0x3b were updated with the newly recalculated CRC. This successfully bypassed Android's bootloader lock verify routine." />
           </section>
 
           {/* Phase 2 */}
