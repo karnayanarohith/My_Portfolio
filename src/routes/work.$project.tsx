@@ -1626,7 +1626,45 @@ $ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt | head -
               By analyzing the raw header, we verified the partition parameters: magic bytes <code>MMMM</code> (<code>4d4d4d4d</code>) at offset <code>0x00</code>, structure size <code>0x3c</code> (<code>3c000000</code>) at offset <code>0x08</code>, lock flag <code>01000000</code> at offset <code>0x0c</code> (LOCKED), and the end marker <code>EEEE</code> (<code>45454545</code>) at offset <code>0x18</code>. Next, we dispatched the DA bypass unlock command:
             </p>
             <StudyCodeBlock>{`# Run the MTK DA seccfg unlock command
-$ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt`}</StudyCodeBlock>
+$ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt
+[MTK] Connecting to BROM...
+Preloader - Detected regular mode! CPU: MT6765/MT8768t(Helio P35/G35)
+Mtk - We're not in bootrom, trying to crash da...
+Exploitation - Crashing da...
+Preloader - [LIB]: upload_data failed with error: DAA_SIG_VERIFY_FAILED (0x7024)
+Preloader - Status: Waiting for PreLoader VCOM, please reconnect mobile/iot device to brom mode
+Preloader - BROM mode detected.
+Preloader - [LIB]: Auth file is required. Use --auth option.
+PLTools - Loading payload from mt6765_payload.bin, 0x264 bytes
+Exploitation - Kamakiri Run
+Exploitation - Done sending payload...
+PLTools - Successfully sent payload: .../mtkclient/payloads/mt6765_payload.bin
+DaHandler - Device was protected. Successfully bypassed security.
+DaHandler - Device is in BROM mode. Trying to dump preloader.
+DAXFlash - Uploading xflash stage 1 from MTK_DA_V5.bin
+XFlashExt - Patching da1 ...
+Mtk - Patched "Patched loader msg" in preloader
+Mtk - Patched "hash_check" in preloader
+Mtk - Patched "Patched loader msg" in preloader
+Mtk - Patched "get_vfy_policy" in preloader
+XFlashExt - Patching da2 ...
+XFlashExt - Security check patched
+XFlashExt - DA version anti-rollback patched
+XFlashExt - SBC patched to be disabled
+XFlashExt - Register read/write not allowed patched
+DAXFlash - Successfully uploaded stage 1, jumping ..
+DAXFlash - Successfully received DA sync
+DAXFlash - DRAM setup passed.
+DAXFlash - Successfully uploaded stage 2
+DAXFlash - DA SLA is disabled
+DAXFlash - EMMC FWVer: 0x0
+DAXFlash - EMMC ID: G1J9R8
+DAXFlash - EMMC CID: 13014e47314a3952381005a9c6be57ff
+DAXFlash - EMMC USER Size: 0xe8f800000
+DAXFlash - DA Extensions successfully added at 0x4fff0000
+Main - Handling da commands ...
+[DA] Patching lock_state: LOCKED → UNLOCKED
+[DONE] Bootloader unlocked successfully!`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
               To verify, we dumped the partition again and generated a hex diff:
             </p>
