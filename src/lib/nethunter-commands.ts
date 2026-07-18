@@ -473,41 +473,6 @@ export const NETHUNTER_COMMAND_LOGS: PhaseLogGroup[] = [
         "command": "chmod +x /home/rohith/Documents/projects/CS/Realme_C15/wipe_userdata.sh && ~/Documents/projects/CS/Realme_C15/wipe_userdata.sh",
         "situation": "Residual data blocks could store personal credentials and identifiers. We needed to sanitize the device completely.",
         "solution": "Executed a low-level BROM format on the `userdata` partition."
-      },
-      {
-        "title": "118\u2013119. Local Workspace Maintenance",
-        "command": "python3 /home/rohith/.gemini/antigravity/brain/15b46cd4-a9d6-46d5-af43-ea2177b8e2e9/scratch/parse_commands.py",
-        "situation": "Reorganizing command histories.",
-        "solution": "Ran a python script to parse terminal histories."
-      }
-    ]
-  },
-  {
-    "phase": "Phase 11: Portfolio Integration & Verification",
-    "commands": [
-      {
-        "title": "120\u2013162. Portfolio Git Commits & Site Compilation",
-        "command": "npm --prefix /home/rohith/Downloads/Rohith_portfolio run build:dev",
-        "situation": "Incorporating all logs, diagrams, and commands into the portfolio website codebase.",
-        "solution": "Repeatedly committed updates to the local git repository and ran the Vite compiler to ensure that the site compiled successfully with zero build errors."
-      },
-      {
-        "title": "163. Stage CVE Update Files",
-        "command": "git -C /home/rohith/Downloads/Rohith_portfolio add 'src/routes/work.cves.$slug.tsx'",
-        "situation": "The CVE status matrix page had outdated vulnerability tags (e.g. Binder UAF marked as pending).",
-        "solution": "Staged the corrected TSX file containing updated status variables."
-      },
-      {
-        "title": "164. Commit CVE Status Updates",
-        "command": "git -C /home/rohith/Downloads/Rohith_portfolio commit -m \"Update CVE status targets to match verified execution logs\"",
-        "situation": "Committing the updated status variables.",
-        "solution": "Created a secure local git commit."
-      },
-      {
-        "title": "165. Final Site Compilation Check",
-        "command": "npm --prefix /home/rohith/Downloads/Rohith_portfolio run build:dev",
-        "situation": "Re-verifying that the entire portfolio page compiled cleanly with the new CVE status tags.",
-        "solution": "Ran the Vite development compiler, confirming the project built successfully with zero warnings or errors."
       }
     ]
   }
