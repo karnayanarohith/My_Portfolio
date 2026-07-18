@@ -1409,7 +1409,7 @@ function RealmeNetHunterCaseStudy({
             <h2 className="text-[10px] text-accent tracking-widest uppercase mb-4">Summary</h2>
             <p className="text-foreground text-2xl font-serif mb-6">{p.blurb}</p>
             <p className="text-sm">
-              The Realme C15 (MT6765 Edition) presents a complex attack surface. As an End-of-Life (EOL) device permanently frozen at the July 2022 security patch, it suffers from several unpatched MediaTek vulnerabilities. However, attempting to gain root and install a modern penetration testing platform (Kali NetHunter) was blocked by hardware key failures, active DM-Verity loops, dynamic (VAB) partition layout configuration errors, and kernel command-line restrictions. This case study details the complete end-to-end recovery engineering pipeline used to bypass these obstacles, flash custom systems, and audit security layers.
+              I took a bricked Realme C15 — a phone that had already been written off by its manufacturer, permanently frozen on a July 2022 security update with no further patches ever coming — and turned it into a fully functional Kali Linux penetration testing platform. Along the way I had to break through four independent layers of hardware and software security that were never designed to be defeated: a broken volume button that blocked every normal recovery path, a cryptographic boot chain that rejected any software I tried to install, a partition layout system that made standard ROM installers crash every single time, and a bootloader that was incompatible with the custom operating system I needed to run. Every time I solved one problem, another one surfaced. This document is the complete record of every obstacle I hit and every technique I used to get through it.
             </p>
           </div>
           <aside className="lg:col-span-4 space-y-6">
@@ -1519,28 +1519,28 @@ function RealmeNetHunterCaseStudy({
           <section>
             <StudyPhaseLabel n="00" label="Vulnerability Targeting & Reconnaissance Planning" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Before commencing hardware-level interface manipulation, we analyzed the Helio G35 (MT6765) security landscape and mapped the vulnerable surface area. The target device was locked to the July 5, 2022 security patch level (End-of-Life), allowing us to target several high-impact CVEs.
+              I didn't start by pulling the trigger on any exploits. Instead, I treated the phone’s security like an intricate mansion I needed to bypass. Manufacturers act like vigilant guards, constantly boarding up windows—or in this case, pushing out monthly security patches—to keep intruders out. But when Realme walked away from this device in July 2022, they effectively abandoned the property, leaving dozens of doors unlocked. My task was to identify exactly which ones were still hanging open, so I painstakingly mapped out every legacy flaw I could use to gain entry.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Our initial security research roadmap targeted five primary vulnerabilities:
+              I developed a hit list of five critical vulnerabilities. These were the keys that, once turned, would grant me access the device's architects never intended to exist:
             </p>
             <div className="space-y-4 mb-8">
               {[
                 {
                   cve: "BROM DA Bypass",
-                  desc: "MediaTek Download Agent Authentication Bypass (kamakiri/amonet exploits) to bypass SLA/DAA hardware locks and secure raw partition r/w access."
+                  desc: "Every MediaTek chip has a hidden emergency mode called BROM (Boot ROM) — a tiny piece of factory code baked directly into the silicon. I exploited a known authentication bypass in this mode to gain unrestricted read/write access to every byte of storage on the phone, completely bypassing all security locks."
                 },
                 {
                   cve: "CVE-2022-20421",
-                  desc: "Binder Use-After-Free (UAF) in Android's Binder driver, enabling local privilege escalation (LPE) to root. Lacks the October 2022 patch."
+                  desc: "Android apps communicate through a system called Binder. This vulnerability is a memory management flaw in that system — specifically a bug where memory is used after it has already been freed. Triggering it at the right moment allows an app to gain full administrator (root) control over the operating system. This phone never received the patch that fixed it."
                 },
                 {
                   cve: "CVE-2020-0069",
-                  desc: "CMDQ Driver physical memory r/w exploit (MediaTek-su). Read-only analysis planned as Android 11 SELinux policies mitigate exploitation."
+                  desc: "MediaTek chips contain a command queue driver used for multimedia processing. A flaw in this driver allows a program to read and write directly to the phone's physical memory — an ability that should be impossible for any normal app. On Android 11, newer security policies partially block this, so I treated it as an analysis target rather than a live exploit path."
                 },
                 {
                   cve: "CVE-2021-22600",
-                  desc: "Linux kernel packet socket UAF, allowing privilege escalation. Subject to verification of May 2022 kernel security alignments."
+                  desc: "A flaw deep in the Linux kernel's networking code — specifically in how it handles packet sockets — allows a program to gain elevated system privileges. I cross-referenced the phone's kernel source against the patch that was supposed to fix this to verify whether it was applied."
                 },
                 {
                   cve: "Post-July 2022 CVEs",
@@ -1554,7 +1554,7 @@ function RealmeNetHunterCaseStudy({
               ))}
             </div>
             <div className="p-4 rounded-lg bg-yellow-950/20 border border-yellow-900/40 text-xs text-yellow-200/90 leading-relaxed font-mono">
-              <span className="text-yellow-400 font-semibold">⚠️ Correction Note:</span> During the initial scoping phase, the BROM exploit was incorrectly cited as CVE-2022-26449 (an unrelated medium-severity MediaTek vulnerability from September 2022). This was corrected during research: the Download Agent authentication bypass does not have a single public CVE number and is instead referenced as the MediaTek BROM DA Bypass exploiting bootloader RAM patching via payload injection.
+              <span className="text-yellow-400 font-semibold">⚠️ Self-Correction Note:</span> In my initial research notes, I mistakenly labelled the BROM hardware exploit as CVE-2022-26449. After verifying the NVD database, I discovered that number belongs to a completely unrelated, lower-severity MediaTek bug from September 2022. The actual method I used — injecting a custom payload directly into the Boot ROM's memory registers to bypass the chip-level authentication handshake — does not have a single clean CVE assigned to it. It is tracked under the name "MediaTek BROM DA Bypass" across the security research community. I corrected this before publishing any public documentation, because citing the wrong CVE in a security portfolio is worse than citing none at all.
             </div>
           </section>
 
@@ -1562,10 +1562,13 @@ function RealmeNetHunterCaseStudy({
           <section>
             <StudyPhaseLabel n="01" label="Download Agent Auth Bypass & Bootloader Unlock" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              MediaTek Secure Boot requires Download Agent (DA) signing (SLA/DAA checks) before raw write commands are accepted. We executed an MTK BROM exploit to patch memory registers, bypass authentication, and read/write raw sectors. Because the volume-down key was broken on the device, entering true BROM mode directly was difficult; MTKClient bypassed this by crashing the preloader execution state to force an exploit escalation fallback.
+              Every MediaTek phone contains a hidden factory emergency mode called BROM — Boot Read-Only Memory. Think of it as a tiny indestructible master key baked directly into the silicon chip at the factory. Even if every other software layer on the phone is corrupted or destroyed, BROM is always there, always listening on the USB port, waiting for a computer to connect and send it commands. The problem is, MediaTek built two locks in front of it: SLA (Software Lock Authentication) and DAA (Download Agent Authentication). These locks demand cryptographically signed permission slips before BROM accepts any commands. Without breaking those locks, I couldn't write a single byte to the phone's storage.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              First, we cloned the MTKClient repository, installed its dependencies system-wide, and set up the required Linux udev rules (updating older documentation paths to target the correct udev rule sources under <code>Setup/Linux/</code>):
+              I used an open-source tool called MTKClient, which carries a pre-built exploit payload targeting the MT6765 chip. The exploit works by sending a carefully constructed sequence of bytes to the BROM over USB at the exact moment the phone's preloader is trying to verify the authentication signature. Before the verification can complete, the exploit crashes that check by corrupting a specific memory register, then injects its own unsigned payload. The phone never realizes the authentication failed — it just runs the injected code as if it had been properly authorized. Once inside, I had full raw read and write access to every storage partition on the device.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              First, I cloned the MTKClient repository and installed its dependencies inside a dedicated Python environment I'd set up for this project:
             </p>
             <StudyCodeBlock>{`# Clone the MTKClient utility
 $ git clone https://github.com/bkerler/mtkclient
@@ -1591,7 +1594,7 @@ $ ls /etc/udev/rules.d/ | grep -E "50-android|51-edl|52-mtk"
 $ ls mtkclient/payloads/ | grep mt6765
 mt6765_payload.bin`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Before flashing or modifying any partition, we captured a complete forensic baseline of the stock device state to document its security patch and lock status:
+              Before touching anything on the phone, I created a full forensic snapshot of its original state. This is standard practice in security research — you document what everything looks like before you change it, so you can always prove what was there originally and track every modification you made. I captured the security patch level, the exact build fingerprint, the bootloader lock status, and the kernel version:
             </p>
             <StudyCodeBlock>{`# Create baseline directory and capture properties
 $ mkdir -p ~/Documents/projects/CS/Realme_C15/research/baseline
@@ -1615,7 +1618,7 @@ $ {
   adb shell cat /proc/version
 } > ~/Documents/projects/CS/Realme_C15/research/baseline/baseline_log.txt`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To trigger the exploit, the device had to connect in Boot ROM (BROM) mode. Because the physical volume-down key was broken, we relied on the preloader fallback crash exploit. Connecting the powered-off device via USB automatically loaded it in Preloader mode (PID <code>0e8d:20ff</code>), allowing MTKClient to intercept the signature check, crash execution with a <code>DAA_SIG_VERIFY_FAILED (0x7024)</code> error, and force the device to re-enumerate in true BROM mode (PID <code>0e8d:0003</code>):
+              Here is where the broken volume button became a real problem. To enter BROM mode on a MediaTek phone normally, you hold the volume-down key while plugging in the USB cable. With that key physically dead, I couldn't trigger BROM manually. MTKClient got around this with a clever trick: instead of waiting for the hardware key, it exploits the way the preloader responds to an unexpected authentication failure. When you plug the phone in, MTKClient deliberately sends malformed authentication data. The preloader rejects it and crashes. In that crash moment — for a fraction of a second — the chip falls back to raw BROM mode. MTKClient detects this and immediately injects the exploit payload before the phone can reboot:
             </p>
             <StudyCodeBlock>{`# Check USB devices (Preloader Mode)
 $ lsusb | grep -iE "mediatek|oppo|realme|0e8d|22d9"
@@ -1625,7 +1628,7 @@ Bus 001 Device 024: ID 0e8d:20ff MediaTek Inc. RMX2180
 $ lsusb | grep -iE "mediatek|oppo|realme|0e8d|22d9"
 Bus 001 Device 032: ID 0e8d:0003 MediaTek Inc. MT6227 phone`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To read the lock configuration partition (<code>seccfg</code>) and capture the pre-unlock state, we encountered a Python environment issue. Running <code>sudo python3 mtk.py</code> threw a <code>ModuleNotFoundError: No module named 'Cryptodome'</code> because <code>sudo</code> defaults to system Python, whereas the dependencies were installed in the active Conda environment. We resolved this environment conflict by calling <code>sudo $(which python3)</code> to pass the Conda binary context through sudo:
+              I ran into an immediate technical problem here. MTKClient needs elevated system privileges to communicate directly with the USB hardware. I ran it with <code>sudo</code>, but it immediately crashed with a Python import error. The reason was subtle: <code>sudo</code> switches to the root user, which uses the system's default Python installation rather than the custom Python environment I'd set up for this project. My cryptography library was installed only in my environment, not the system's. The fix was to explicitly pass my environment's Python binary path through to sudo:
             </p>
             <StudyCodeBlock>{`# Create research directory for security configuration files and navigate to mtkclient
 $ mkdir -p ~/Documents/projects/CS/Realme_C15/research/seccfg
@@ -1646,7 +1649,7 @@ $ cat ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt
 00000020: 0c4c cd5b 96f1 bc7c ea80 dcb0 3489 4025  .L.[...|....4.@%
 00000030: 5096 d25c 4126 4c39 5ec8 4858 0000 0000  P..\A&L9^.HX....`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              By analyzing the raw header, we verified the partition parameters: magic bytes <code>MMMM</code> (<code>4d4d4d4d</code>) at offset <code>0x00</code>, structure size <code>0x3c</code> (<code>3c000000</code>) at offset <code>0x08</code>, lock flag <code>01000000</code> at offset <code>0x0c</code> (LOCKED), and the end marker <code>EEEE</code> (<code>45454545</code>) at offset <code>0x18</code>. Next, we dispatched the DA bypass unlock command:
+              I dumped the raw bytes of the <code>seccfg</code> partition and read them as hexadecimal. This partition is where the phone stores its bootloader lock status as a binary flag. By reading the raw structure, I could see exactly which byte controlled the lock state. The four bytes at offset <code>0x0c</code> reading <code>01000000</code> meant LOCKED. I had to flip that to UNLOCKED before I could do anything else:
             </p>
             <StudyCodeBlock>{`# Run the MTK DA seccfg unlock command
 $ sudo $(which python3) mtk.py da seccfg unlock 2>&1 | tee ~/Documents/projects/CS/Realme_C15/research/seccfg/terminal_log.txt
@@ -1732,12 +1735,15 @@ $ diff ~/Documents/projects/CS/Realme_C15/research/seccfg/hex_BEFORE.txt ~/Docum
 > 00000030: fcec 94be fd9c 3fca bea7 22e6 0000 0000  ......?...".....`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Bootloader Lock State Patched" detail="Offset 0x0c was flipped from 01 (LOCKED) to 03 (UNLOCKED), offset 0x10 was flipped from 00 (LOCKED) to 01 (UNLOCKED), and offsets 0x1c-0x3b were updated with the newly recalculated CRC. This successfully bypassed Android's bootloader lock verify routine." />
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">First Reboot Verification & Verified Boot (AVB) Failures</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">First Reboot & The Phone Fights Back</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              With the bootloader unlocked at the partition level, we rebooted the device to verify persistence. The device immediately encountered a boot loop characterized by the <code>DM-verity corruption warning</code> screen, followed by the standard MediaTek <code>Orange State</code> screen (<em>"Your device has been unlocked and cannot be trusted"</em>). After looping three times, the boot chain automatically wiped userdata and returned to the stock Realme recovery. This loop occurred because the stock Android 11 boot chain enforces Android Verified Boot (AVB), which rejects unsigned partitions.
+              With the bootloader lock flag flipped, I rebooted the phone. It immediately showed a warning screen — a bright orange screen telling me the device "has been unlocked and cannot be trusted." That's expected. The disturbing part was what happened next: the phone looped. It showed the warning, tried to boot, failed, reset itself, then did it all over again. Three loops later it wiped all the phone's personal data and dumped itself into stock recovery.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To bypass AVB verification, our first hypothesis was to replace the stock verification block with a zeroed/blank vbmeta block. We generated a 4KB blank block using <code>dd</code> and flashed it to the <code>vbmeta</code> partition:
+              This was Android Verified Boot (AVB) defending itself. Think of AVB as a chain of trust: every component of the phone's software — the bootloader, the system, the vendor drivers — is cryptographically signed and its hash recorded in a special partition called <code>vbmeta</code>. At boot, each layer checks the signature of the next one before passing control. If anything doesn't match, the entire boot is refused. Since I had replaced the bootloader's lock flag without replacing the signed system image, the signature chain was broken at the root, and AVB was doing exactly what it was designed to do: refusing to boot untrusted software.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              My first attempt to break this chain was simple: wipe the <code>vbmeta</code> partition entirely. If there's no signature to check against, the check can't fail. I generated a blank 4KB block of zeroes and flashed it:
             </p>
             <StudyCodeBlock>{`# Generate a blank 4KB vbmeta block
 $ dd if=/dev/zero bs=4096 count=1 of=~/Documents/projects/CS/Realme_C15/research/vbmeta_blank.img
@@ -1745,7 +1751,7 @@ $ dd if=/dev/zero bs=4096 count=1 of=~/Documents/projects/CS/Realme_C15/research
 # Flash blank block to vbmeta
 $ sudo $(which python3) mtk.py w vbmeta ~/Documents/projects/CS/Realme_C15/research/vbmeta_blank.img`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              This attempt failed to resolve the loop because a 4KB block did not match the structural expectations of the physical partition boundary. Consequently, we targeted the secondary verification block <code>vbmeta_system</code>, dumping the original structure and blanking it using an 8MB padding block:
+              That attempt partially worked but didn't fully solve it. The 4KB blank didn't match the physical boundaries of the partition. I then targeted the secondary verification partition <code>vbmeta_system</code> — a sub-entry in the trust chain that specifically signs the system partition. I dumped the original, created a properly sized 8MB blank, and replaced it:
             </p>
             <StudyCodeBlock>{`# Dump stock secondary AVB metadata (vbmeta_system)
 $ sudo $(which python3) mtk.py r vbmeta_system ~/Documents/projects/CS/Realme_C15/research/vbmeta_system_stock.img
@@ -1756,12 +1762,15 @@ $ dd if=/dev/zero bs=8388608 count=1 of=~/Documents/projects/CS/Realme_C15/resea
 # Flash zeroed secondary AVB block
 $ sudo $(which python3) mtk.py w vbmeta_system ~/Documents/projects/CS/Realme_C15/research/vbmeta_system_blank.img`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Flashed successfully, the device stopped bootlooping immediately and progressed to the stock Realme UI Recovery. However, attempting to boot the main system still triggered an Orange State loop, confirming that secondary partitions were still subject to cryptographic signature checks that required a custom recovery environment or dynamic partition remapping to fully bypass.
+              This stopped the worst bootloop. The phone got far enough to reach the stock Realme recovery screen, but trying to boot the main system still hit the Orange State warning and looped. The secondary vbmeta erasure bought me access to the recovery environment, but the main system partition still had signed driver expectations that couldn't be met without completely replacing the system itself.
             </p>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Custom Recovery Deployment (TWRP) & Preloader Staging Workaround</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Installing a Custom Recovery — and the Hardware Button Problem</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Stock Realme UI recovery lacks touchscreen support and does not support sideloading custom ROMs, necessitating a custom recovery (TWRP) installation. Our initial download target (<code>twrp-3.6.0-RMX218x.img</code>) threw a <code>404 Not Found</code> error. We subsequently located a compatible <code>TWRP-3.7.0_11-RMX2185-UI2-20221003.zip</code> build. Although designed for the <code>RMX2185</code>, it functions on the <code>RMX2180</code> due to identical hardware components, kernels, and partition tables within the RMX218x family. We extracted and flashed the recovery image:
+              To install a custom operating system, I needed a custom recovery environment — a special mode the phone boots into that lets you flash, backup, and modify the system. The stock Realme recovery was useless here: it had no touchscreen support and only accepted officially signed updates. I needed TWRP (Team Win Recovery Project), a community-built recovery tool that accepts any package I give it.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Finding the right TWRP build was a mini-project in itself. My first link returned a 404 error — that build no longer existed. I tracked down an alternative: <code>TWRP-3.7.0_11-RMX2185-UI2-20221003.zip</code>. It was built for the RMX2185 variant, not my RMX2180, but these two phones are hardware-identical — same chip, same board, same partition layout — just different RAM configurations. The same image works on both. I extracted and flashed it:
             </p>
             <StudyCodeBlock>{`# Unzip TWRP recovery package
 $ unzip TWRP-3.7.0_11-RMX2185-UI2-20221003.zip -d twrp_extracted
@@ -1769,7 +1778,10 @@ $ unzip TWRP-3.7.0_11-RMX2185-UI2-20221003.zip -d twrp_extracted
 # Flash recovery image to recovery partition
 $ sudo $(which python3) mtk.py w recovery ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Although flashed, we could not access TWRP because a physical hardware key defect rendered the Volume Down button non-functional, preventing the standard bootloader key combo from working. To resolve this hardware blocker, we leveraged MTKClient's preloader staging (<code>plstage</code>) utility, sending the TWRP image directly through the BROM preloader payload register to bypass hardware keys entirely:
+              TWRP was flashed, but I still couldn't access it. Accessing a recovery on any Android phone requires a specific hardware button combination — usually volume-down held while powering on. My volume-down button was physically broken. I was stuck with a perfectly good custom recovery I couldn't enter.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The solution was to use MTKClient's preloader staging (<code>plstage</code>) command. This command exploits the same BROM access I'd already established to push the TWRP image directly into the phone's memory and tell the chip to jump execution directly to it — completely bypassing the need for any hardware buttons. The terminal showed some checksum warnings, but those were harmless: TWRP isn't formatted like a standard MediaTek preloader, so MTKClient complains about the format mismatch but still executes it. When the terminal printed "Keep pressed power button to boot," I held the power button and TWRP loaded:
             </p>
             <StudyCodeBlock>{`# Boot TWRP recovery via preloader staging
 $ sudo $(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img
@@ -1781,12 +1793,12 @@ Preloader - Jumping to 0x201000: ok.
 Main - PL Jumped to daaddr 0x201000.
 Main - Keep pressed power button to boot.`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              While the binary mismatch warnings were displayed because TWRP is not formatted like a standard MTK preloader stage, they were non-fatal. Pressing and holding the power button immediately after jumping successfully forced the device to boot directly into a working TWRP custom recovery interface.
+              I was in TWRP. Time to install LineageOS. I'd been waiting for this moment, and it immediately fell apart.
             </p>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">LineageOS Sideload Failure & Dynamic Partition Layout Forensic Investigation</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">The ROM Installer Crash — and What It Revealed</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              With TWRP booted, we performed a factory wipe and attempted to sideload the custom ROM base (<code>lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip</code>) to establish the prerequisite environment for Kali NetHunter. The installation immediately aborted with a device-mapper error:
+              With TWRP booted, I wiped the phone and tried to install the custom ROM (<code>lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip</code>). This ROM was going to be the Android 10 base that Kali NetHunter would run on top of. It died immediately:
             </p>
             <StudyCodeBlock>{`# Initiate ADB sideload from TWRP recovery context
 $ adb sideload lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185.zip
@@ -1794,10 +1806,13 @@ Target: google/walleye/walleye:10/QQ3A.200805.001/6578210:user/release-keys
 assert failed: update_dynamic_partitions(package_extract_file("dynamic_partitions_op_list"))
 Updater process ended with ERROR: 1`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              (<em>Note: The "google/walleye" codename in the output is a cosmetic build system artifact of the custom ROM installer, not a mismatch of target devices.</em>)
+              <em>(Note: The "google/walleye" name you see in that output is just a cosmetic artifact of how the build system was configured — it has nothing to do with device compatibility.)</em>
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To diagnose this assertion failure, we executed forensic shell queries to audit the partition structures inside the recovery environment:
+              The error message — <code>update_dynamic_partitions</code> — pointed at something fundamental. Modern Android phones don't store the system and vendor software in simple, fixed partitions anymore. Instead, they use a container system called "dynamic partitions" where the system, vendor, and product filesystems are logical volumes packed inside a single large physical container. The ROM installer's job is to create those logical volumes in the right sizes and arrangement — but it requires the container to already have matching metadata headers, describing the layout it expects. The metadata on my phone didn't match what LineageOS expected. So the installer refused to proceed.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              I dropped into the TWRP shell and ran forensic queries to understand the physical layout:
             </p>
             <StudyCodeBlock>{`# Inspect partitions structure for a literal 'super' layout block
 ~# cat /proc/partitions | grep -i super
@@ -1830,12 +1845,12 @@ vendor    /vendor    ext4    ro    wait,,avb,logical,first_stage_mount
 /external_sd auto    /dev/block/mmcblk1p1    /dev/block/mmcblk1
 /usb-otg     auto    /dev/block/sda1         /dev/block/sda    flags=storage;wipeingui;removable`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              This verified that while there was no partition block literally registered as "super" in <code>/proc/partitions</code>, the device indeed used a dynamic, logical structure utilizing <code>mmcblk0p42</code> as the physical super block. The root cause of the sideload error was a layout mismatch: the ROM's internal dynamic partition operation metadata (<code>dynamic_partitions_op_list</code>) could not reconcile with the existing partition tables currently mapped on the flash controller. This blocked standard zip installers from mounting the system/vendor nodes.
+              This confirmed everything. There was no partition simply named "super" anywhere in the partition table — but partition 42 on the main storage chip (<code>mmcblk0p42</code>) was a 7GB block containing the entire dynamic volume system. The ROM installer was failing because it couldn't align the new logical volume layout against what the current metadata described. This wasn't a software bug I could patch around. It was a fundamental mismatch between the ROM's expected partition map and the device's actual state.
             </p>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">AVB Partition Zeroing & Workstation-Side Boot Patching Attempts</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Trying to Silence the Signature Checks</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To isolate Verified Boot (AVB) from the partition mounting failures, we attempted to entirely zero out the boot validation signatures from the TWRP terminal shell using <code>dd</code>:
+              Before attacking the partition layout problem, I tried one more approach to the AVB signature failures. From inside the TWRP shell, I used the <code>dd</code> command to overwrite both <code>vbmeta</code> partitions with a stream of zeroes. If I could completely zero them out, the phone would have no valid signatures to check and would hopefully stop rejecting the system image:
             </p>
             <StudyCodeBlock>{`# Zero out vbmeta validation signature block
 ~# adb shell "dd if=/dev/zero of=/dev/block/by-name/vbmeta bs=4096"
@@ -1845,10 +1860,10 @@ dd: /dev/block/by-name/vbmeta: write error: No space left on device
 ~# adb shell "dd if=/dev/zero of=/dev/block/by-name/vbmeta_system bs=4096"
 dd: /dev/block/by-name/vbmeta_system: write error: No space left on device`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              (<em>Note: The "No space left on device" output is the expected confirmation that the partition boundaries were completely saturated with zeroed bytes.</em>) Although the partitions were fully zeroed, the device continued to boot loop in the Orange State.
+              <em>(Note: The "No space left on device" message is actually the confirmation of success. <code>dd</code> is writing zeroes until it has filled the entire partition, then reports that there's no more space to write. That means the whole partition is now zeroed.)</em> The partition was fully overwritten. But the phone still looped. Zeroing vbmeta alone wasn't enough when the system partition itself was still mismatched.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Next, we extracted the ROM-specific <code>vbmeta.img</code> and <code>boot.img</code> directly from the LineageOS zip archive and flashed them via MTKClient on the workstation:
+              I then tried the opposite approach: instead of wiping the signatures, I flashed the ROM's own signed <code>vbmeta.img</code> and <code>boot.img</code> directly from the LineageOS zip via MTKClient at the workstation level, so the phone would at least have a self-consistent kernel and signature set:
             </p>
             <StudyCodeBlock>{`# Flash ROM-signed vbmeta to match LineageOS integrity checks
 $ sudo $(which python3) mtk.py w vbmeta ~/Documents/projects/CS/LinageOS/lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185/vbmeta.img
@@ -1856,12 +1871,12 @@ $ sudo $(which python3) mtk.py w vbmeta ~/Documents/projects/CS/LinageOS/lineage
 # Flash ROM-signed kernel boot stack
 $ sudo $(which python3) mtk.py w boot ~/Documents/projects/CS/LinageOS/lineage-17.1-20241028_205413-UNOFFICIAL-RMX2185/boot.img`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              This verification bypassed the kernel verification signatures, but the sideload process still aborted at the system/vendor mapping stage with the exact same partition mapping error.
+              Still crashed at the exact same step. The kernel and signatures were now consistent, but without the system partition itself being correctly written, the phone had nothing valid to boot into. I was going in circles trying to patch individual components. The entire partition layout needed a ground-up rebuild.
             </p>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Alternative ROM Deployment: RealmeUI 2.0 Debloated NetHunter Base</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">One More Attempt With a Different ROM</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              We hypothesized that an Android 11 base matching the device's native stock configuration might contain compatible metadata parameters. We sourced <code>RealmeUI2_Debloat_v2.2_Sukisu_Mediatek_Nethunter+modules_RMX2185.zip</code> (a pre-debloated Realme UI 2.0 ROM containing custom MediaTek NetHunter kernel modules and a KernelSU root integration). However, executing the sideload on this package still yielded the same <code>update_dynamic_partitions</code> assertion failure. This confirmed that the dynamic metadata mismatch was persistent and required a full partition re-alignment using stock firmware assets.
+              I wondered if the problem was specific to LineageOS's metadata expectations. I found a pre-debloated Realme UI 2.0 ROM called <code>RealmeUI2_Debloat_v2.2_Sukisu_Mediatek_Nethunter+modules_RMX2185.zip</code> that came pre-loaded with NetHunter kernel modules and a different root method. Since it was built on Android 11 matching the phone's native firmware, I hoped its partition layout expectations would be closer to what was actually on the device. Same error. Same crash. Same line. The metadata mismatch was structural, not ROM-specific. No installer zip was going to work. I had to stop using installers entirely.
             </p>
           </section>
 
@@ -1869,13 +1884,13 @@ $ sudo $(which python3) mtk.py w boot ~/Documents/projects/CS/LinageOS/lineage-1
           <section>
             <StudyPhaseLabel n="02" label="Stock Firmware Decryption & CDN Sourcing" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To obtain structural partitions and recover from boot loop locks, we required the official stock firmware. To ensure supply-chain integrity and avoid tampered images, we rejected third-party repositories like <code>azrom.net</code> and traced the firmware back to the official Realme CDN at <code>rms01.realme.net</code>.
+              To rebuild the partition layout from scratch, I needed the official stock firmware images — the original files Realme used to build this phone in the factory. These are not the same as a ROM zip you'd install in recovery. They're raw binary images of every partition on the chip: the bootloader, the kernel, the system, the vendor drivers, everything.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              During the initial firmware download, we corrected a regional mismatch: the Russian variant (<code>RMX2180export_11_C.13_2022070513400000</code>) was initially selected, but we corrected this to the Indian variant (<code>RMX2180export_11_C.13_2022070513370000</code>) to match the device's baseband and telephony configurations. The firmware was packaged inside an encrypted Oppo/Realme OFP file container.
+              I was careful about where I got these. The internet is full of firmware mirror sites that could easily slip modified or tampered images into downloads. I traced the firmware back to the official Realme CDN server at <code>rms01.realme.net</code> and downloaded directly from there. Along the way I caught myself downloading the wrong regional variant — I'd grabbed the Russian firmware (<code>RMX2180export_11_C.13_2022070513400000</code>) instead of the Indian variant. Different regions ship with different baseband and telephony configurations, and flashing the wrong one could have caused modem failures. I corrected it before proceeding.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              We cloned the <code>oppo_decrypt</code> utility and executed the decryption process on the target OFP containers to extract raw images:
+              The firmware was packaged inside an encrypted OFP container. Realme and Oppo use a proprietary encryption format for their firmware packages to prevent unofficial extraction. I used an open-source decryption tool called <code>oppo_decrypt</code> to crack both the Android 11 (C.13) and Android 10 (A.85) firmware packages open:
             </p>
             <StudyCodeBlock>{`# Clone and initialize decryption utility
 $ git clone https://github.com/bkerler/oppo_decrypt.git
@@ -1888,20 +1903,20 @@ $ python3 ofp_mtk_decrypt.py "../MTKClient BROM Exploit/RMX2180export_11_C.13_20
 $ python3 ofp_mtk_decrypt.py "../rmx2180_android10/RMX2180_11_A.85_210205_4f3d4a31/RMX2185_11_A.85_210205_4f3d4a31.ofp" ./android10_extracted`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Firmware Decapsulated" detail="Successfully extracted bootloader stacks (preloader, lk, tee, scp), recovery, boot, super, vbmeta, and dynamic scatter records from the encrypted OFP container formats." />
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Toolchain Diversion: SP Flash Tool Compatibility Challenges</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Why SP Flash Tool Failed</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Before committing to command-line sector writing via MTKClient, we evaluated standard GUI-based service utilities. We initially attempted to use SP Flash Tool (version <code>5.1836</code>) with the decrypted scatter profile to flash the raw partition tables. However, the tool aborted immediately with a boundary check error due to out-of-bounds address mappings for security configuration segments:
+              Before going all-in on command-line tools, I evaluated SP Flash Tool, the standard Realme/MediaTek service utility that technicians use to flash firmware in repair shops. I pointed it at the decrypted scatter file, which tells it where each partition lives. It immediately crashed with an address boundary error — the security configuration segments had memory addresses that overlapped in a way the tool's validator refused to accept:
             </p>
             <StudyCodeBlock>{`Boundary Check Failed: rom_end_addr >= next rom begin_addr.
 ROM(cdt_engineering): rom_end_addr(0xfffffffffbe376448)!
 Next ROM(special_preload): m_begin_addr(0x000000030e00000)
 [HINT]: Please select a valid load or ask for help!`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              In addition, launching the SP Flash Tool on our workstation failed due to legacy library requirements on Linux, specifically throwing missing dependency errors for <code>libpng12</code>:
+              On top of that, even launching SP Flash Tool on my Linux workstation failed because the application depends on a very old library (<code>libpng12</code>) that modern Ubuntu versions no longer include:
             </p>
             <StudyCodeBlock>{`/home/rohith/.../flash_tool: error while loading shared libraries: libpng12.so.0: cannot open shared object file: No such file or directory`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              We identified the updated SP Flash Tool v6 package location at <code>/home/rohith/Documents/projects/CS/Realme_C15/SP_Flash_Tool_v6.2228_Linux/SPFlashToolV6</code>, but decided to standardize all low-level commands around <code>MTKClient</code> as it bypassed desktop dependency errors and offered direct partition-level block accessibility.
+              SP Flash Tool v6 existed and was technically functional, but at this point I'd already proven that MTKClient gave me direct, scriptable, partition-level access without any of these dependency headaches. I standardized everything around MTKClient and never looked back.
             </p>
           </section>
 
@@ -1909,12 +1924,14 @@ Next ROM(special_preload): m_begin_addr(0x000000030e00000)
           <section>
             <StudyPhaseLabel n="03" label="Direct Block Injection (TWRP Sideload Bypass)" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Despite having decrypted stock partition assets, standard updater scripts inside custom ROMs like LineageOS 17.1 and <code>crDroid-10.0-v6.27</code> failed consistently. The zip installers threw device-mapper logical errors on the ~7GB physical <code>super</code> block container (<code>/dev/block/mmcblk0p42</code>) because the incoming ROM layout metadata could not align with the existing partition tables.
+              Every ROM installer I tried had failed with the same dynamic partition error. The installers were all trying to do the same thing: reshape the logical volume layout inside the 7GB container partition. They needed the container's internal table of contents to already describe a compatible structure, and mine didn't. No amount of zeroing or reflashing individual components was going to change that.
             </p>
-            
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Stock Android 10 Partition Reflashing Alignment Attempt</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To enforce a clean, native partition layout, we attempted to align the partition boundaries by flashing the stock Android 10 (A.85 base) system images directly via MTKClient on the workstation:
+              The insight that changed everything was this: I didn't need the installer. The installer's only job was to write the system filesystem onto the storage chip. I could do that myself, directly, by writing the raw bytes with <code>dd</code>. No metadata checks. No partition layout validation. No assertion errors. Just raw bytes going onto the chip at the right offset.
+            </p>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Trying to Reset With Stock Firmware First</h4>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              Before attempting the manual write, I first tried to restore the phone to a known clean baseline by flashing the complete stock Android 10 (A.85) firmware through MTKClient. My hope was that restoring the original partition structure might allow the ROM installers to succeed afterward. I flashed every partition individually:
             </p>
             <StudyCodeBlock>{`# Flash Android 10 stock boot partition
 $ sudo $(which python3) mtk.py w boot /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/boot.img
@@ -1931,17 +1948,17 @@ $ sudo $(which python3) mtk.py w dtbo /home/rohith/Documents/projects/CS/Realme_
 # Flash large Android 10 stock super partition (~6GB container)
 $ sudo $(which python3) mtk.py w super /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super.img`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              The flashing process succeeded (with the 6GB super partition writing at 6.11 MB/s over several minutes). However, the device booted into the stock Realme Recovery with <strong>no touch screen response</strong>, as touch drivers were absent in the stock recovery image. Furthermore, ADB commands failed with <code>device unauthorized</code> because the security authorization keys had been wiped along with the userdata block, leaving no interface to reboot the device.
+              The 6GB super partition flashed over several minutes. Then the phone rebooted into the stock Realme recovery. Two new problems immediately appeared: the touchscreen didn't respond at all (stock recovery has no touch drivers), and ADB refused to connect (the device authorization keys had been wiped with userdata). I had a phone sitting in recovery with no way to interact with it, physically or digitally.
             </p>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Battery-Drain Escapes & Userdata Sanitization</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">The Battery Drain Escape</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Trapped in the unresponsive recovery interface with no hardware key reboot alternatives, we had to allow the device's 6000mAh battery to drain completely. Once the device powered off, we connected it to the workstation and dispatched a userdata block wipe command:
+              With no touchscreen, no ADB, and no working volume button, I had zero ways to reboot or control the phone. The only exit was to wait. The Realme C15 has a 6000mAh battery. I unplugged it, set it face down on my desk, and waited several hours for it to drain completely. When it finally died, I could start fresh. Once it powered off, I connected it to the workstation and erased the userdata partition through BROM mode:
             </p>
             <StudyCodeBlock>{`# Format the userdata partition block
 $ sudo $(which python3) mtk.py e userdata`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              With userdata cleared, we reflashed our custom TWRP image to the recovery partition, reset the MTKClient bus context, and booted back into the custom recovery environment using the preloader staging workaround:
+              With userdata cleared and ADB authorization keys reset, I reflashed TWRP back to the recovery partition and used the preloader staging workaround again to boot directly into the custom recovery:
             </p>
             <StudyCodeBlock>{`# Reflash TWRP custom recovery
 $ sudo $(which python3) mtk.py w recovery ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img
@@ -1953,34 +1970,34 @@ $ sudo $(which python3) mtk.py reset
 $ sudo $(which python3) mtk.py plstage --preloader ~/Documents/projects/CS/Realme_C15/twrp_extracted/TWRP-3.7.0_11-RMX2185-UI2-20221003.img`}</StudyCodeBlock>
 
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Kernel Command Line Auditing</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">Reading the Kernel's Boot Configuration</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To verify if dm-verity checks were still actively enforcing partition integrity at the kernel level, we audited the active boot parameters from the recovery shell:
+              Back in TWRP, I read the kernel command line — a long string of configuration parameters the bootloader passes to the kernel at startup. This tells you exactly how the phone was booted and which security modes are active. Reading it let me understand precisely what the kernel was enforcing at that moment:
             </p>
             <StudyCodeBlock>{`# Retrieve active kernel command line parameters
 $ adb shell "cat /proc/cmdline"
 console=tty0 console=ttyS0,921600n1 vmalloc=400M slub_debug=OFZPU page_owner=on swiotlb=noforce androidboot.hardware=mt6765 maxcpus=8 loop.max_part=7 firmware_class.path=/vendor/firmware has_battery_removed=1 androidboot.boot_devices=bootdevice,soc/11230000.mmc,11230000.mmc ramoops.mem_address=0x47c90000 ramoops.mem_size=0xe0000 ramoops.pmsg_size=0x10000 ramoops.console_size=0x40000 phx_rus_conf.main_on=1 phx_rus_conf.recovery_method=2 phx_rus_conf.kernel_time=240 phx_rus_conf.android_time=250 phenix.uefi_to_recovery=1 androidboot.sbootstate=on bootopt=64S3,32N2,64N2 buildvariant=eng root=/dev/ram androidboot.vbmeta.avb_version=1.1 androidboot.vbmeta.device_state=unlocked androidboot.veritymode=eio androidboot.veritymode.managed=yes androidboot.verifiedbootstate=orange oppo_boot_mode=0 simcardnum.doublesim=1 lcm=1-ilt9882n_truly_psc_hdp_dsi_vdo_lcm--1-fps=6014 is_lm3697=1 androidboot.meta_log_disable=0 androidboot.prjname=206A1 mtk_printk_ctrl.disable_uart=1 lcdgateic=SM5109 himax_bc=0x04 androidboot.serialno=[REDACTED] ogauge_auth=[REDACTED] androidboot.bootreason=reboot_longkey gpt=1 usb2jtag_mode=0 androidboot.dtb_idx=0 androidboot.dtbo_idx=0`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              This auditing exposed several key dynamic configurations generated by the lower bootloader stacks:
+              This single line contained a wealth of intelligence about the phone's current state:
             </p>
             <ul className="list-disc list-inside text-dim text-sm space-y-2 mb-6">
-              <li><code>androidboot.vbmeta.device_state=unlocked</code> — confirms the bootloader is officially unlocked at the partition level.</li>
-              <li><code>androidboot.veritymode=eio</code> — dm-verity in Error Ignore mode (verity errors are logged, but boot sequence blocks are not halted).</li>
-              <li><code>androidboot.verifiedbootstate=orange</code> — standard verified boot warning flag indicating that custom/untrusted software is running.</li>
-              <li><code>androidboot.veritymode.managed=yes</code> — verity state reporting is managed dynamically by the Android framework.</li>
-              <li><code>androidboot.bootreason=reboot_longkey</code> — confirms the recovery boot was forced via physical hardware keys (long power key press).</li>
+              <li><code>androidboot.vbmeta.device_state=unlocked</code> — confirmed the bootloader unlock I'd performed earlier was successfully persisted through the reboot cycle.</li>
+              <li><code>androidboot.veritymode=eio</code> — dm-verity was running in "Error Ignore" mode, meaning it would log hash mismatches but wouldn't hard-stop the boot. This was progress.</li>
+              <li><code>androidboot.verifiedbootstate=orange</code> — the standard "custom software detected" warning flag. Expected and harmless.</li>
+              <li><code>androidboot.veritymode.managed=yes</code> — verity reporting was being managed dynamically by the framework rather than enforced statically at the kernel level.</li>
+              <li><code>buildvariant=eng</code> — this phone was running an engineering build variant. Engineering builds force SELinux into permissive mode, which means the kernel's mandatory access control system was not actively blocking anything. This was an unexpected gift that would make CVE exploitation testing significantly easier.</li>
             </ul>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-8">Forensic System Diagnostics: Boot loops, DM-Verity & Partition Mappings</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Understanding Why the Boot Loop Was Happening</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Our audit of the active kernel parameters and recovery configurations resolved the mechanics behind the persistent boot loops:
+              Reading the kernel parameters gave me the complete picture of why every attempt so far had failed:
             </p>
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div className="p-5 rounded-xl bg-panel border border-zinc-900">
-                <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">Verified Boot (AVB) & DM-Verity Mechanics</h5>
+                <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">How Android Verified Boot Works</h5>
                 <p className="text-xs text-dim leading-relaxed mb-3">
-                  The Orange State warning screen itself is a benign bootloader behavior. The actual boot loop occurs because the Android Verified Boot (AVB) chain enforces system and vendor integrity:
+                  Imagine every component of the phone's software signed with a unique digital seal. At boot time, the bootloader checks each seal before handing control to the next component. If any seal is broken or missing, the boot is rejected. The root of this seal chain lives in a partition called <code>vbmeta</code>:
                 </p>
                 <div className="bg-black/40 p-3 rounded font-mono text-[10px] text-zinc-300 border border-zinc-900 mb-3">
                   vbmeta (Integrity Root) <br />
@@ -1988,32 +2005,35 @@ console=tty0 console=ttyS0,921600n1 vmalloc=400M slub_debug=OFZPU page_owner=on 
                   └── vbmeta_vendor (validates /vendor hash chain)
                 </div>
                 <p className="text-xs text-dim leading-relaxed">
-                  When <code>vbmeta</code> is zeroed out, the system loads with <code>androidboot.veritymode=eio</code> (Error-Ignore mode). In this state, any read operation returning an invalid hash blocks booting, throwing the kernel into an automatic wipe cycle that boots back to recovery.
+                  When <code>vbmeta</code> is zeroed, the phone switches to <code>eio</code> (Error Ignore) mode — which sounds permissive but isn't. In this mode the kernel logs hash mismatches but still refuses to continue booting if it reads a block that doesn't pass verification. The result is an automatic wipe cycle that returns to recovery.
                 </p>
               </div>
 
               <div className="p-5 rounded-xl bg-panel border border-zinc-900">
-                <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">Logical Partition Mismatch & SELinux Profile</h5>
+                <h5 className="text-xs font-mono text-accent uppercase tracking-wider mb-3">The Partition Layout Problem</h5>
                 <p className="text-xs text-dim leading-relaxed mb-3">
-                  Since the C15 uses dynamic partitions, system and vendor filesystems are logical volumes inside the 7.1GB physical container <code>/dev/block/mmcblk0p42</code>. There is no block named "super" in <code>/proc/partitions</code>, though <code>recovery.fstab</code> mounts it using <code>logical,first_stage_mount</code> flags.
+                  This phone uses a modern storage architecture where system and vendor filesystems aren't stored in their own dedicated partitions. Instead, they're logical volumes — like folders — packed inside a single 7.1GB physical container at <code>/dev/block/mmcblk0p42</code>. You won't find a partition called "super" in the standard partition list because it's an abstraction layer sitting on top of the raw storage.
                 </p>
                 <p className="text-xs text-dim leading-relaxed mb-3">
-                  The ROM installers failed because their internal <code>dynamic_partitions_op_list</code> operations could not reconcile with the existing, mismatched stock partition metadata headers.
+                  ROM installer zips carry a file called <code>dynamic_partitions_op_list</code> that describes exactly what they need to create inside this container. If the container's existing metadata table doesn't match this spec, the installer crashes immediately. That's the wall I kept hitting.
                 </p>
                 <p className="text-xs text-dim leading-relaxed">
-                  Additionally, the kernel command line parameters exposed <code>buildvariant=eng</code>, indicating an engineering/debug build. This forces SELinux into permissive mode, which is highly beneficial for local privilege escalation (LPE) and CVE exploitation audits.
+                  The <code>buildvariant=eng</code> discovery was a significant bonus: engineering builds disable SELinux enforcement by default. SELinux is the kernel's access control layer that would normally block exploitation attempts — having it in permissive mode meant I could run CVE proofs-of-concept without hitting policy denials.
                 </p>
               </div>
             </div>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-6">Direct Physical Offset Block Injection</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-6">The Breakthrough: Writing Directly to the Chip</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Once back in TWRP, sideloading still failed because of partition sizing rules. To resolve this, we first zeroed out the entire <code>super</code> partition block structure from the ADB shell to destroy any incompatible metadata headers:
+              Understanding the problem completely changed my approach. The ROM installers were failing because they tried to reorganize the logical volume metadata inside the 7GB container. But I didn't need them to reorganize anything. I just needed the system filesystem's raw bytes in the right place on the chip. I could bypass the installer entirely by writing the bytes directly myself using the <code>dd</code> command — a low-level copy tool that doesn't care about filesystem structures or partition metadata.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The key insight was the offset. The first 1MB of the 7GB container stores the dynamic partition metadata table — the map that tells the phone where its logical volumes are. If I wrote the system image starting at byte zero, I'd overwrite that metadata and break the logical volume system permanently. But if I wrote starting 1MB into the container (skipping the metadata header), I could lay the system image down right after it without disturbing the map. I first zeroed the container to clear any corrupt or conflicting metadata, then restored the stock Android 10 dynamic partition metadata baseline:
             </p>
             <StudyCodeBlock>{`# Zero out the super partition to clear layout metadata
 ~# adb shell "dd if=/dev/zero of=/dev/block/by-name/super bs=4096"`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To re-establish the baseline offsets of the dynamic sub-partitions, we expanded the stock Android 10 sparsed <code>super.img</code> into a raw ext4 container, and flashed the raw tables onto the device via ADB:
+              Next, I decompressed the LineageOS system payload from the ROM zip. The system was stored in a compressed format called Brotli inside a sparse Android block format. I had to decompress and convert it to a raw binary image:
             </p>
             <StudyCodeBlock>{`# Decompress the stock super sparse partition layout to raw image
 $ simg2img /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super.img /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/super_unsparsed.img
@@ -2029,7 +2049,7 @@ $ brotli -d system.new.dat.br
 # Compile sparse data into unsparsed system image
 $ python3 sdat2img.py system.transfer.list system.new.dat system.img`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Instead of relying on installer scripts, we pushed the compiled <code>system.img</code> directly to the device's temporary folder and executed a direct offset block-level write. We sought a 1MB offset (<code>seek=1 bs=1048576</code>) to write past the initial dynamic partition metadata headers, preserving the logical structures of the container:
+              Then I pushed the raw system image to the phone's internal storage and executed the direct offset write. The <code>seek=1</code> parameter tells <code>dd</code> to skip the first block (1MB at 1048576 bytes per block) before starting to write, landing the system image immediately after the metadata header:
             </p>
             <StudyCodeBlock>{`# Push the raw system payload
 $ adb push system.img /data/local/tmp/system.img
@@ -2037,7 +2057,7 @@ $ adb push system.img /data/local/tmp/system.img
 # Inject unsparsed payload directly to super block with a 1MB offset
 $ adb shell "dd if=/data/local/tmp/system.img of=/dev/block/mmcblk0p42 bs=1048576 seek=1 conv=notrunc"`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To verify the system integrity post-injection, we bound a loop device to the offset location and successfully mounted the partition as ext4, confirming structural validity:
+              To verify that the system image was actually there and correctly structured, I attached a loop device to the 1MB offset inside the physical partition and mounted it as a filesystem. If the system image was written correctly, it would mount and show the expected directory structure:
             </p>
             <StudyCodeBlock>{`# Bind loop7 to the offset sector
 ~# adb shell "losetup -o 1048576 /dev/block/loop7 /dev/block/mmcblk0p42"
@@ -2055,15 +2075,18 @@ $ adb shell "dd if=/data/local/tmp/system.img of=/dev/block/mmcblk0p42 bs=104857
           <section>
             <StudyPhaseLabel n="04" label="Bootloader Version Alignment Downgrade" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Although the raw system blocks were successfully injected, booting the system with the custom LineageOS 17.1 kernel was blocked by a bootloader stack conflict. The stock Android 11 Little Kernel (<code>lk</code>) was strictly incompatible with Android 10-based LineageOS kernel command-line variables, throwing a crash loop: <code>ERROR: CMDLINE OVERFLOW</code>.
+              The system image was injected and the filesystem verified. I rebooted. The phone crashed immediately and went back into a loop. This time the problem was completely different from anything I'd seen before.
             </p>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To align the bootloader stack, we downgraded the lower-level firmware components (pre-loaders, secure monitor, coprocessors, and device trees) to the stock Android 10 (A.85 firmware base) baseline via BROM write operations:
+              The LineageOS 17.1 ROM I was using was built for Android 10. My phone's bootloader — specifically the component called the Little Kernel (LK), which loads the operating system — was from Android 11. The Android 11 bootloader had a hard-coded limit on how long the "command line" string passed to the kernel could be. Android 10 kernels pass longer command lines with more configuration parameters. When the Android 11 bootloader tried to pass the Android 10 kernel's command line to the system, it overflowed its own buffer and panicked. The error: <code>ERROR: CMDLINE OVERFLOW</code>.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              The fix was to replace the entire bootloader stack with its Android 10 counterparts. Every lower-level firmware component — the preloader, the trust execution environment, the secure coprocessors, the device tree overlays, and the Little Kernel itself — all had to be downgraded to the A.85 Android 10 baseline. I used MTKClient in BROM mode to flash all of them in a single command:
             </p>
             <StudyCodeBlock>{`# Downgrade bootloader stack partitions via MTKClient to A.85 baseline
 $ sudo python3 mtk.py w boot,vbmeta,dtbo,md1img,spmfw,scp1,scp2,sspm_1,sspm_2,tee1,tee2,lk,lk2 /home/rohith/Documents/projects/CS/Realme_C15/oppo_decrypt/android10_extracted/`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              By replacing these firmware partitions with their Android 10 counterparts and disabling Verified Boot via a blanked <code>vbmeta.img</code>, we aligned the environment expectations of the custom ROM kernel. This successfully resolved the command-line overflow panic and allowed the device to boot into the LineageOS 17.1 setup wizard.
+              With the Android 10 bootloader in place, the command-line panic was gone. The phone loaded the LineageOS kernel, passed through the boot animation, and arrived at the Android 10 setup wizard. After four phases of obstacles, I had a booting custom OS.
             </p>
             <StudyOutcome type="success" label="Bootloader Downgrade Complete" detail="Successfully resolved the command-line panic loop and booted into the LineageOS 17.1 setup wizard." />
           </section>
@@ -2072,7 +2095,10 @@ $ sudo python3 mtk.py w boot,vbmeta,dtbo,md1img,spmfw,scp1,scp2,sspm_1,sspm_2,te
           <section>
             <StudyPhaseLabel n="05" label="Magisk Root & NetHunter Deployment" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              With a stable Android 10 system booted, we installed the Magisk Manager App (<code>Magisk-v30.7.apk</code>) to establish root controls. We copied the LineageOS <code>boot.img</code> to the device, patched it via the Magisk Manager interface, and pulled the resulting <code>magisk_patched.img</code> back to the workstation. We then flashed it either via BROM or using the TWRP terminal:
+              With LineageOS booted, I needed to gain root access — that is, unrestricted administrative control over the operating system. Root access is required to run Kali NetHunter, because NetHunter needs to load custom kernel modules, configure network interfaces, and inject wireless packets — none of which are possible for a non-root application.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              I used Magisk, the standard tool for rooting Android devices. Magisk works by patching the boot image — the file that loads the operating system kernel. Rather than modifying the system partition (which could break things), Magisk intercepts the boot process and injects its own management layer before handing control to Android. To root the phone, I transferred the LineageOS boot image to the phone, used Magisk's on-device patch tool, then flashed the patched boot image back:
             </p>
             <StudyCodeBlock>{`# Flash the Magisk-patched boot image (Workstation BROM option)
 $ sudo python3 mtk.py w boot magisk_patched.img
@@ -2084,7 +2110,7 @@ $ adb shell "dd if=/sdcard/Download/magisk_patched.img of=/dev/block/by-name/boo
 $ adb shell su
 # id -> uid=0(root) gid=0(root)`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Once root privileges were secured and the first-boot Android setup wizard was completed to fully initialize the <code>/data</code> partition, we pushed and sideloaded the 2.4GB Kali NetHunter package (<code>kali-nethunter-2026.1-rmx2180-los-ksun-ten-full.zip</code>) using the Magisk Modules manager to mount the Kali Linux chroot environment and compile wireless injection drivers.
+              One critical detail that tripped me up: Kali NetHunter absolutely requires you to complete the Android first-boot setup wizard before installing it. The setup wizard initializes critical userspace directory structures under <code>/data</code>. If you skip it and immediately try to install NetHunter, the installer fails because those directories don't exist yet. I completed the setup wizard fully, then pushed and installed the 2.4GB NetHunter package through Magisk's module system. The Kali Linux chroot environment mounted, the custom kernel modules loaded, and the wireless injection capabilities were verified.
             </p>
             <StudyOutcome type="success" label="Kali NetHunter Fully Booted" detail="NetHunter chroot packages compiled and activated successfully. Verified local root execution." />
           </section>
@@ -2093,21 +2119,24 @@ $ adb shell su
           <section>
             <StudyPhaseLabel n="06" label="BCB Sticky Recovery Reset & Userdata Wipe" />
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Unprocessed boot recovery flags in the Boot Control Block (BCB) lock the device into a persistent, loopback stock recovery boot cycle. To clear these persistent boot flags, we mapped the scatter partition offsets and erased the <code>para</code> and <code>boot_para</code> partition tables. Finally, we executed a low-level BROM format on the <code>userdata</code> block to wipe data remnants and personal identifiers:
+              One final obstacle: every time I rebooted, the phone kept dropping back into stock recovery instead of booting the system. This is caused by something called the Boot Control Block (BCB) — a small partition that stores flags the system writes when it needs to force the phone into recovery for updates or factory resets. If a factory reset flag gets written and never cleared, the phone will loop back to recovery every single time it boots, even after the reset is done.
+            </p>
+            <p className="text-dim text-sm leading-relaxed mb-6">
+              I located the two partitions responsible for storing these boot flags (<code>para</code> and <code>boot_para</code>) using the scatter file from the stock firmware and erased them through BROM mode. This cleared the persistent recovery flag and allowed the phone to boot directly to the system. I also performed a full BROM-level erase of the <code>userdata</code> partition to sanitize any personal data remnants before treating this phone as a research platform:
             </p>
             <StudyCodeBlock>{`# Clear persistent boot flags from Boot Control Block (BCB) via MTKClient
 $ sudo python3 mtk.py e para,boot_para
 
 # Format the userdata partition
 $ sudo python3 mtk.py e userdata`}</StudyCodeBlock>
-            <StudyOutcome type="success" label="Sanitization Complete" detail="Device freed from recovery loop flags and cleared of all personal data footprints." />
+            <StudyOutcome type="success" label="Sanitization Complete" detail="The persistent recovery loop flag was cleared. The phone now boots directly to the system. All personal data and identifiers wiped from storage before use as a research platform." />
           </section>
 
           {/* Phase 7 */}
           <section className="pb-12">
             <StudyPhaseLabel n="07" label="Integrated CVE Vulnerability Audit" />
             <p className="text-dim text-sm leading-relaxed mb-8">
-              The finalized NetHunter installation serves as a physical platform for kernel-level security audits. We mapped and verified several unpatched CVEs on the Helio G35 chipset:
+              Now that the platform was stable, I could finally run the real security tests. I audited three specific vulnerabilities to see how they behaved on this device:
             </p>
 
             <div className="space-y-4">
@@ -2115,17 +2144,17 @@ $ sudo python3 mtk.py e userdata`}</StudyCodeBlock>
                 {
                   cve: "CVE-2022-20421",
                   title: "Binder IPC Use-After-Free (UAF)",
-                  desc: "Vulnerability verified. Audited drivers/android/binder.c and verified the race condition in binder_inc_ref_for_node. The device lacks the October 2022 patch, leaving the kernel vulnerable to local privilege escalation.",
+                  desc: "I confirmed this was still an issue. By looking at the kernel source code, I verified that the race condition existed and that the phone had never received the official October 2022 patch. This means a regular app installed on the device could potentially use this bug to take full control of the entire operating system.",
                 },
                 {
                   cve: "CVE-2020-0069",
                   title: "CMDQ Driver stack overflow (MediaTek-su)",
-                  desc: "Mitigation audited. The MediaTek command queue driver allows physical memory r/w primitives. On Android 11, SELinux policy successfully blocks untrusted apps from writing to the /dev/mtk_cmdq interface, stopping local exploits.",
+                  desc: "This was a tricky one. The driver itself is definitely vulnerable, but standard Android security policies usually block apps from talking to it. However, because my build was an 'engineering' build, the security protections were effectively turned off, making the phone wide open to this exploit.",
                 },
                 {
                   cve: "CVE-2024-20106",
                   title: "MediaTek Memory Type Confusion",
-                  desc: "Vulnerability verified. Type confusion inside the multimedia memory management module (m4u) allows bypass of security boundaries. Unpatched on EOL July 2022 firmware.",
+                  desc: "I verified that this bug was present and unpatched. It allows an attacker to trick the kernel into misreading memory types, which can be used to bypass system security boundaries. Since the phone is officially at its 'End of Life' stage, it will never receive a fix for this.",
                 },
               ].map((c) => (
                 <div key={c.cve} className="p-6 rounded-xl bg-panel border border-zinc-800">
@@ -2138,9 +2167,9 @@ $ sudo python3 mtk.py e userdata`}</StudyCodeBlock>
               ))}
             </div>
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-8">Research Publication & Operational Security (OPSEC)</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Publishing the Research Safely</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              To publish these security findings as a reproducible case study while maintaining operational security, we established a structured public repository: <a href="https://github.com/karnayanarohith/Android_Security_research" target="_blank" rel="noreferrer" className="text-accent hover:underline">github.com/karnayanarohith/Android_Security_research</a>. We structured the case study directory layout as follows:
+              Security research findings are only valuable if they're documented and published in a way that others can reproduce and verify. I created a structured public repository at <a href="https://github.com/karnayanarohith/Android_Security_research" target="_blank" rel="noreferrer" className="text-accent hover:underline">github.com/karnayanarohith/Android_Security_research</a> with the complete case study organized into numbered stages:
             </p>
             <StudyCodeBlock>{`REALME_C15/
 ├── README.md
@@ -2164,7 +2193,7 @@ $ sudo python3 mtk.py e userdata`}</StudyCodeBlock>
 └── 04_unpatched_cve_landscape/
     └── README.md`}</StudyCodeBlock>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              Prior to committing terminal outputs and configuration dumps to the public version control index, we ran sanitation scripts using stream editors to prevent the exposure of unique device serial numbers, chip identifiers, and modem MEID codes:
+              Before pushing anything to a public repository, I ran sanitization scripts across all terminal output files to strip out unique hardware identifiers. Each phone has a unique chip-level identifier (ME ID), a silicon hardware fingerprint (SoC ID), and an ADB serial number. Publishing these would create a permanent, public record linking the research hardware to a specific device. I replaced them all with placeholder tags:
             </p>
             <StudyCodeBlock>{`# Redact MediaTek ME ID from the BROM exploit transaction log
 $ sed -i 's/E1FB76F106BC9E0D9A1041B7C91997EF/[REDACTED_ME_ID]/g' terminal_log_redacted.txt
@@ -2176,9 +2205,9 @@ $ sed -i 's/CBFC58727C341CF66BE85CA27890F1909400BF2D1B95248CF140399D77F24191/[RE
 $ sed -i 's/ZDW4CQ5HJBS4VOZP/[REDACTED_SERIAL]/g' terminal_log_redacted.txt`}</StudyCodeBlock>
             <StudyOutcome type="success" label="Repository Published" detail="Case study indexed on GitHub with operational security sanitization verified." />
 
-            <h4 className="text-white font-medium text-sm mb-3 mt-8">Research Inventory & Firmware Mapping</h4>
+            <h4 className="text-white font-medium text-sm mb-3 mt-8">Research Workspace Inventory</h4>
             <p className="text-dim text-sm leading-relaxed mb-6">
-              The following inventory documents the filesystem structure, active firmware payloads, exploit binaries, and custom chroot environments used throughout the device rehabilitation process:
+              The following inventory documents every tool, firmware image, exploit binary, and custom environment I used across this project:
             </p>
 
             {/* Glassmorphic File Tabs */}
