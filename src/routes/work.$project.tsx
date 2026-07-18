@@ -8,6 +8,7 @@ import {
 import { SiteLayout } from "@/components/site/Layout";
 import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { PROJECTS } from "@/lib/site-data";
+import { NETHUNTER_COMMAND_LOGS } from "@/lib/nethunter-commands";
 
 export const Route = createFileRoute("/work/$project")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -1364,6 +1365,7 @@ function RealmeNetHunterCaseStudy({
   next: any;
 }) {
   const [activeFileTab, setActiveFileTab] = useState("research");
+  const [selectedPhaseIdx, setSelectedPhaseIdx] = useState(0);
 
   return (
     <SiteLayout>
@@ -3082,6 +3084,71 @@ $ adb sideload /path/to/rom_payload.zip
 
 # Write zero-blocks to destroy AVB verification flags
 $ adb shell "dd if=/dev/zero of=/dev/block/by-name/[vbmeta_partition] bs=4096"`}</StudyCodeBlock>
+              </div>
+            </div>
+          </section>
+
+          {/* Chronological Command Execution Log */}
+          <section className="border-t border-zinc-900/60 pt-16">
+            <StudyPhaseLabel n="08" label="Complete Forensic Command Execution History" />
+            <p className="text-dim text-sm leading-relaxed mb-6 font-sans">
+              The following audit trail details the complete chronological sequence of terminal commands executed during the recovery process. Each command lists the original engineering situation and the corresponding technical solution:
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Phase Selector Sidebar */}
+              <div className="lg:col-span-1 space-y-1">
+                {NETHUNTER_COMMAND_LOGS.map((group, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedPhaseIdx(idx)}
+                    className={`w-full text-left p-3 rounded-lg text-xs font-mono transition-all border ${
+                      selectedPhaseIdx === idx
+                        ? "bg-accent/10 border-accent/30 text-accent font-semibold"
+                        : "bg-panel border-zinc-900 hover:border-zinc-800 text-dim hover:text-foreground"
+                    }`}
+                  >
+                    <span className="block text-[9px] text-zinc-500 font-semibold mb-1 uppercase">PHASE 0{idx + 1}</span>
+                    {group.phase.replace(/^Phase \d+:\s*/i, "")}
+                  </button>
+                ))}
+              </div>
+
+              {/* Commands List Panel */}
+              <div className="lg:col-span-3 space-y-4">
+                <div className="p-4 rounded-xl bg-panel/60 border border-zinc-900 mb-4">
+                  <h5 className="text-xs font-mono text-zinc-400 uppercase tracking-wider mb-1">Active Phase</h5>
+                  <h4 className="text-sm font-sans font-semibold text-foreground">
+                    {NETHUNTER_COMMAND_LOGS[selectedPhaseIdx].phase}
+                  </h4>
+                </div>
+
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                  {NETHUNTER_COMMAND_LOGS[selectedPhaseIdx].commands.map((cmd, cIdx) => (
+                    <div key={cIdx} className="p-5 rounded-xl bg-panel border border-zinc-900 hover:border-zinc-800 transition-all space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-accent font-semibold tracking-wider font-mono uppercase">
+                          {cmd.title}
+                        </span>
+                      </div>
+                      
+                      <div className="font-mono text-xs text-foreground bg-black/40 p-3 rounded border border-zinc-950 overflow-x-auto">
+                        <code className="text-zinc-300">{cmd.command}</code>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-zinc-900/60 text-[11px] leading-relaxed">
+                        <div>
+                          <span className="text-zinc-500 font-mono font-semibold block mb-1">SITUATION</span>
+                          <p className="text-dim font-sans">{cmd.situation}</p>
+                        </div>
+                        <div>
+                          <span className="text-accent font-mono font-semibold block mb-1">SOLUTION</span>
+                          <p className="text-zinc-300 font-sans">{cmd.solution}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
